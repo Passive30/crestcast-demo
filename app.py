@@ -4,6 +4,20 @@ import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 
+from PIL import Image
+import streamlit as st
+
+# Optional: set page metadata
+st.set_page_config(
+    page_title="Passive 3.0 Portfolio Builder",
+    layout="wide"
+)
+
+# Load and display banner
+banner = Image.open("banner.png")
+st.image(banner, use_column_width=True)
+
+
 # === Load and Clean CSV ===
 file_path = "timeseries_6-25-2025.csv"
 returns_df = pd.read_csv(file_path)
