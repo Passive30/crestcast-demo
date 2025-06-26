@@ -51,7 +51,7 @@ st.title("Passive3.0™ Overlay Builder")
 
 # --- Section 1: Client Info ---
 st.header("1. Client Information")
-client_name = st.text_input("Client Name")
+client_name = st.text_input("Sample Client Name")
 account_type = st.selectbox("Account Type", ["Individual", "Joint", "Trust", "IRA", "Corporate", "Other"]
 )
 # --- Section 2: Index Selection ---
@@ -66,13 +66,13 @@ preferred_index = index_options[selected_label]
 # --- Section 3: Add Macro-Aware Overlay ---
 st.header("3. Add Macro-Aware Overlay")
 
-macro_aware = st.checkbox("Enable Macro-Aware Overlay")
+macro_aware = st.checkbox("Enable Macro-Aware Overlay?")
 
 if macro_aware:
-    st.markdown("This overlay helps your portfolio respond to changing economic conditions using a data-driven model.")
+    st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
 
     # Overlay Fee Dropdown
-    fee_bps = st.selectbox("Overlay Fee (MSRP)", [50, 35, 20], index=0)
+    fee_bps = st.selectbox("Overlay Fee (basis points))", [50, 35, 20], index=0)
     annual_fee = fee_bps / 10000
     monthly_fee = annual_fee / 12
 
@@ -162,7 +162,7 @@ blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
 # Plot the chart
 
 # --- Cumulative Return Chart ---
-st.subheader("📈 Cumulative Return Comparison")
+st.subheader("📈 Cumulative Return Comparison (net of fees)")
 
 # Precompute cumulative returns
 cum_benchmark = cumulative_return(benchmark)
@@ -187,7 +187,7 @@ else:
 
 
 # --- Performance Summary Table ---
-st.subheader("📊 Performance Summary")
+st.subheader("📊 Performance Summary (net of fees)")
 
 # New: Up/down capture & return delta
 def up_capture(port, bench):
