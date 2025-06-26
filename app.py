@@ -8,10 +8,12 @@ from PIL import Image
 import streamlit as st
 
 # Optional: set page metadata
-st.set_page_config(
-    page_title="Passive 3.0 Portfolio Builder",
-    layout="wide"
-)
+st.set_page_config(page_title="Passive 3.0™ Overlay – Direct Indexing Demo")
+st.markdown("""
+# Passive 3.0™ Macro Overlay (Demo for Direct Index Partners)
+Built on the CrestCast™ regime model | Powered by Intervallum Technologies  
+""")
+
 
 # Load and display banner
 banner = Image.open("banner.png")
