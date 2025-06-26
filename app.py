@@ -15,7 +15,8 @@ st.set_page_config(
 
 # Load and display banner
 banner = Image.open("banner.png")
-st.image(banner, use_column_width=True)
+st.image(banner, use_container_width=True)
+
 
 
 # === Load and Clean CSV ===
