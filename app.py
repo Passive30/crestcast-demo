@@ -113,9 +113,8 @@ stress_periods = {
     "Financial Crisis (2007–2009)": ("2007-10-01", "2009-03-31"),
     "Post-Financial Crisis Bull Run (2009–2014)": ("2009-04-01", "2014-05-31"),
     "Oil Crash (2014–2016)": ("2014-06-01", "2016-02-29"),
-    "Pandemic Crash (2020)": ("2020-02-01", "2020-04-30"),
-    "Post-COVID Bull Run (2020–2021)": ("2020-05-01", "2021-12-31"),
-    "Inflation Regime (2022–2023)": ("2022-01-01", "2023-10-31"),
+    "Pandemic Crash (2020)": ("2020-01-01", "2021-12-31"),
+    "Inflation Regime (2022–2023)": ("2021-11-01", "2023-10-31"),
     "Recent Volatility (2024–Present)": ("2024-01-01", returns_df.index.max().strftime("%Y-%m-%d"))
 }
 
