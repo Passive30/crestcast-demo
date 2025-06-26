@@ -32,7 +32,7 @@ def cumulative_return(series): return (1 + series).cumprod()
 
 # === Streamlit App ===
 st.set_page_config(page_title="CrestCast Overlay Builder", layout="centered")
-st.title("CrestCast™ Overlay Builder")
+st.title("Passive3.0™ Overlay Builder")
 
 # --- Section 1: Client Info ---
 st.header("1. Client Information")
