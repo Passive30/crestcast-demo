@@ -165,15 +165,22 @@ st.subheader("📈 Cumulative Return Comparison (net of fees)")
 
 # Precompute cumulative returns
 cum_benchmark = cumulative_return(benchmark)
-cum_blended = cumulative_return(blended_crestcast)
-cum_crestcast = cumulative_return(net_crestcast)
 
-# Combine into DataFrame
-comparison_df = pd.DataFrame({
-    f"{preferred_index} (Benchmark)": cum_benchmark,
-    f"CrestCast Overlay ({tracking_error})": cum_blended,
-    "CrestCast (100% Net of Fee)": cum_crestcast
-})
+if macro_aware:
+    cum_blended = cumulative_return(blended_crestcast)
+    cum_crestcast = cumulative_return(net_crestcast)
+    
+    # Combine into DataFrame with macro overlay
+    comparison_df = pd.DataFrame({
+        f"{preferred_index} (Benchmark)": cum_benchmark,
+        f"CrestCast Overlay ({tracking_error})": cum_blended,
+        "CrestCast (100% Net of Fee)": cum_crestcast
+    })
+else:
+    # Show benchmark only
+    comparison_df = pd.DataFrame({
+        f"{preferred_index} (Benchmark)": cum_benchmark
+    })
 
 # Drop NaNs to avoid blank charts
 comparison_df = comparison_df.dropna()
@@ -183,7 +190,6 @@ if not comparison_df.empty:
     st.line_chart(comparison_df)
 else:
     st.warning("Not enough data to plot. Please try a different date range.")
-
 
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
