@@ -48,8 +48,12 @@ def max_drawdown(r):
 def cumulative_return(series): return (1 + series).cumprod()
 
 # === Streamlit App ===
-st.set_page_config(page_title="CrestCast Overlay Builder", layout="centered")
-st.title("Passive3.0™ Overlay Builder")
+st.set_page_config(page_title="Passive 3.0™ Overlay – Direct Indexing Demo")
+st.markdown("""
+# Passive 3.0™ Macro Overlay (Demo for Direct Index Partners)
+Built on the CrestCast™ regime model | Powered by Intervallum Technologies  
+""")
+
 
 # --- Section 1: Client Info ---
 st.header("1. Client Information")
