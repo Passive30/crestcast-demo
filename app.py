@@ -44,7 +44,7 @@ def cumulative_return(series): return (1 + series).cumprod()
 
 # === Intro and Branding ===
 st.markdown("""
-# 🧽 Passive 3.0™ Macro Overlay  
+# Passive 3.0™ Macro Overlay  
 ### Direct Indexing Demonstration | Powered by Intervallum Technologies
 This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhance any core index using regime-aware factor rotation.
 """)
