@@ -5,15 +5,16 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 from PIL import Image
-import streamlit as st
 
-# Optional: set page metadata
+# === Page Configuration ===
+st.set_page_config(
+    page_title="Passive 3.0™ Overlay – Direct Indexing Demo",
+    layout="wide"
+)
 
-# Load and display banner
+# === Display Banner ===
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
-
-
 
 # === Load and Clean CSV ===
 file_path = "timeseries_6-25-2025.csv"
@@ -41,21 +42,20 @@ def max_drawdown(r):
     return drawdown.min()
 def cumulative_return(series): return (1 + series).cumprod()
 
-# === Streamlit App ===
-st.set_page_config(page_title="Passive 3.0™ Overlay – Direct Indexing Demo")
+# === Intro and Branding ===
 st.markdown("""
-# Passive 3.0™ Macro Overlay (Demo for Direct Index Partners)
-Built on the CrestCast™ regime model | Powered by Intervallum Technologies  
+# 🧽 Passive 3.0™ Macro Overlay  
+### Direct Indexing Demonstration | Powered by Intervallum Technologies
+This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhance any core index using regime-aware factor rotation.
 """)
 
+# === Section 1: Simulation Parameters ===
+st.header("1. Simulation Setup")
+client_name = st.text_input("Client (or Demo Label)", value="")
+account_type = st.selectbox("Account Type", ["Individual", "Joint", "Trust", "IRA", "Corporate", "Other"])
 
-# --- Section 1: Client Info ---
-st.header("1. Client Information")
-client_name = st.text_input("Sample Client Name")
-account_type = st.selectbox("Account Type", ["Individual", "Joint", "Trust", "IRA", "Corporate", "Other"]
-)
-# --- Section 2: Index Selection ---
-st.header("2. Select Core Index")
+# === Section 2: Select Base Index ===
+st.header("2. Select Core Index for Overlay")
 index_options = {
     "S&P 500 (SPY)": "SPY",
     "Russell 3000 (IWV)": "IWV"
@@ -63,10 +63,10 @@ index_options = {
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
 preferred_index = index_options[selected_label]
 
-# --- Section 3: Add Macro-Aware Overlay ---
-st.header("3. Add Macro-Aware Overlay")
-
+# === Section 3: Activate Overlay Logic ===
+st.header("3. Activate Macro-Aware Overlay")
 macro_aware = st.checkbox("Enable Macro-Aware Overlay?")
+
 
 if macro_aware:
     st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
