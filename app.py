@@ -267,7 +267,7 @@ if macro_aware:
     st.subheader("📈 Rolling 5-Year Information Ratio")
 
     # Compute rolling 5-year IR (60 months)
-    rolling_window = 36
+    rolling_window = 84
     monthly_excess = blended_crestcast - benchmark
     rolling_alpha = monthly_excess.rolling(window=rolling_window).mean()
     rolling_tracking_error = monthly_excess.rolling(window=rolling_window).std()
