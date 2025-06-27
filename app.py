@@ -44,11 +44,11 @@ def cumulative_return(series): return (1 + series).cumprod()
 def tracking_error(port, bench):
     excess_returns = port - bench
     return excess_returns.std() * np.sqrt(12)
-
 def information_ratio(port, bench):
-    alpha = annualized_return(port) - annualized_return(bench)
-    te = tracking_error(port, bench)
+    _, alpha = beta_alpha(port, bench)  # Use risk-adjusted alpha
+    te = tracking_error(port, bench)    # Still use excess return std
     return alpha / te if te != 0 else np.nan
+
 
 
 
