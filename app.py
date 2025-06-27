@@ -280,8 +280,6 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
 # --- Rolling 5-Year Information Ratio Chart ---
-import statsmodels.api as sm
-
 if macro_aware:
     st.subheader("📈 Rolling 5-Year Information Ratio (Jensen Alpha Based)")
 
