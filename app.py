@@ -41,11 +41,18 @@ def max_drawdown(r):
     drawdown = (cumulative - peak) / peak
     return drawdown.min()
 def cumulative_return(series): return (1 + series).cumprod()
-def information_ratio(port, bench):
+def tracking_error(port, bench):
+    """Annualized standard deviation of excess returns."""
     excess_returns = port - bench
-    tracking_error = excess_returns.std() * np.sqrt(12)
-    raw_alpha = annualized_return(port) - annualized_return(bench)
-    return raw_alpha / tracking_error if tracking_error != 0 else np.nan
+    return excess_returns.std() * np.sqrt(12)
+def information_ratio(port, bench):
+    """Information Ratio: Excess return over tracking error (not beta-adjusted)."""
+    alpha = annualized_return(port) - annualized_return(bench)  # Raw CAGR diff
+    te = tracking_error(port, bench)
+    return alpha / te if te != 0 else np.nan
+
+st.text(f"IR Debug: {information_ratio(blended_crestcast, benchmark):.2f}")
+
 
 
 
