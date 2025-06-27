@@ -263,25 +263,43 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
 # --- Rolling 5-Year Information Ratio Chart ---
+import statsmodels.api as sm
+
 if macro_aware:
-    st.subheader("📈 Rolling 5-Year Information Ratio")
+    st.subheader("📈 Rolling 5-Year Information Ratio (Jensen Alpha Based)")
 
-    # Compute rolling 5-year IR (60 months)
-    rolling_window = 84
-    monthly_excess = blended_crestcast - benchmark
-    rolling_alpha = monthly_excess.rolling(window=rolling_window).mean()
-    rolling_tracking_error = monthly_excess.rolling(window=rolling_window).std()
-    rolling_ir = (rolling_alpha / rolling_tracking_error) * np.sqrt(12)
+    rolling_window = 84  # 7 years = 84 months
 
-    # Clean data
-    rolling_ir = rolling_ir.dropna()
+    ir_series = []
+
+    for i in range(rolling_window, len(blended_crestcast)):
+        port = blended_crestcast.iloc[i - rolling_window:i]
+        bench = benchmark.iloc[i - rolling_window:i]
+        if port.isnull().any() or bench.isnull().any():
+            ir_series.append(np.nan)
+            continue
+
+        # Regression: port = alpha + beta * bench + error
+        X = sm.add_constant(bench.values)
+        y = port.values
+        model = sm.OLS(y, X).fit()
+        alpha = model.params[0]
+        residuals = model.resid
+        tracking_err = np.std(residuals) * np.sqrt(12)  # annualized
+        annual_alpha = alpha * 12  # convert to annualized
+
+        info_ratio = annual_alpha / tracking_err if tracking_err != 0 else np.nan
+        ir_series.append(info_ratio)
+
+    # Align with full date index
+    rolling_ir = pd.Series(ir_series, index=blended_crestcast.index[rolling_window:])
 
     if not rolling_ir.empty:
         ir_df = pd.DataFrame({"Rolling 5-Year IR": rolling_ir})
         st.line_chart(ir_df)
-        st.caption("Shows the consistency of the strategy’s risk-adjusted alpha relative to the benchmark across time. Values above 0.5 suggest strong, persistent alpha.")
+        st.caption("This chart uses Jensen’s alpha and regression-based tracking error over 7-year rolling windows. Values above 0.5 indicate persistent, risk-adjusted outperformance.")
     else:
-        st.warning("Not enough data to calculate a 5-year rolling Information Ratio.")
+        st.warning("Not enough data to calculate the rolling Jensen-based Information Ratio.")
 
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
