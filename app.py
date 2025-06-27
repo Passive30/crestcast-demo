@@ -42,12 +42,23 @@ def max_drawdown(r):
     return drawdown.min()
 def cumulative_return(series): return (1 + series).cumprod()
 def tracking_error(port, bench):
-    excess_returns = port - bench
-    return excess_returns.std() * np.sqrt(12)
+    if port is None or bench is None:
+        return np.nan
+    df = pd.concat([port, bench], axis=1).dropna()
+    if df.empty:
+        return np.nan
+    excess_returns = df.iloc[:, 0] - df.iloc[:, 1]
+    return excess_returns.std() * np.sqrt(12) if not excess_returns.empty else np.nan
+
 def information_ratio(port, bench):
-    _, alpha = beta_alpha(port, bench)  # Use risk-adjusted alpha
-    te = tracking_error(port, bench)    # Still use excess return std
-    return alpha / te if te != 0 else np.nan
+    if port is None or bench is None:
+        return np.nan
+    df = pd.concat([port, bench], axis=1).dropna()
+    if df.empty:
+        return np.nan
+    beta, alpha = beta_alpha(df.iloc[:, 0], df.iloc[:, 1])
+    te = tracking_error(df.iloc[:, 0], df.iloc[:, 1])
+    return alpha / te if te and te != 0 else np.nan
 
 
 
