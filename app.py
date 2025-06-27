@@ -262,6 +262,27 @@ for i in range(len(metrics)):
 summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
+# --- Rolling 5-Year Information Ratio Chart ---
+if macro_aware:
+    st.subheader("📈 Rolling 5-Year Information Ratio")
+
+    # Compute rolling 5-year IR (60 months)
+    rolling_window = 60
+    monthly_excess = blended_crestcast - benchmark
+    rolling_alpha = monthly_excess.rolling(window=rolling_window).mean()
+    rolling_tracking_error = monthly_excess.rolling(window=rolling_window).std()
+    rolling_ir = (rolling_alpha / rolling_tracking_error) * np.sqrt(12)
+
+    # Clean data
+    rolling_ir = rolling_ir.dropna()
+
+    if not rolling_ir.empty:
+        ir_df = pd.DataFrame({"Rolling 5-Year IR": rolling_ir})
+        st.line_chart(ir_df)
+        st.caption("Shows the consistency of the strategy’s risk-adjusted alpha relative to the benchmark across time. Values above 0.5 suggest strong, persistent alpha.")
+    else:
+        st.warning("Not enough data to calculate a 5-year rolling Information Ratio.")
+
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
