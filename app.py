@@ -90,11 +90,12 @@ if macro_aware:
 
     # Friendly Tracking Error Dropdown
     tracking_error_label = "How closely should your portfolio follow the index?"
-    tracking_error = st.selectbox(
+    tracking_error_label_choice = st.selectbox(
         tracking_error_label,
         options=["Very closely", "Somewhat closely", "Flexible"],
         index=0
     )
+
 
     # Map investor-friendly terms to λ
     lambda_values = {
@@ -102,7 +103,8 @@ if macro_aware:
         "Somewhat closely": 0.5,
         "Flexible": 1.0
     }
-    lam = lambda_values[tracking_error]
+    lam = lambda_values[tracking_error_label_choice]
+
 
     # Optional Email Opt-In
     email_opt_in = st.checkbox("📬 Please send me an email with monthly commentary on regime outlook and implications for my portfolio.")
