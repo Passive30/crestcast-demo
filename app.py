@@ -79,7 +79,7 @@ if macro_aware:
     st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
 
     # Overlay Fee Dropdown
-    fee_bps = st.selectbox("Overlay Fee (basis points))", [50, 35, 20], index=0)
+    fee_bps = st.selectbox("Overlay Fee (basis points))", [50, 35, 20, 0], index=0)
     annual_fee = fee_bps / 10000
     monthly_fee = annual_fee / 12
 
