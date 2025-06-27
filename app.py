@@ -185,6 +185,7 @@ else:
 
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
+st.text(f"IR Debug: {information_ratio(blended_crestcast, benchmark):.2f}")
 
 
 # New: Up/down capture & return delta
