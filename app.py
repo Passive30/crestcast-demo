@@ -44,8 +44,9 @@ def cumulative_return(series): return (1 + series).cumprod()
 def information_ratio(port, bench):
     excess_returns = port - bench
     tracking_error = excess_returns.std() * np.sqrt(12)
-    annualized_alpha = annualized_return(port) - annualized_return(bench)
-    return annualized_alpha / tracking_error if tracking_error != 0 else np.nan
+    raw_alpha = annualized_return(port) - annualized_return(bench)
+    return raw_alpha / tracking_error if tracking_error != 0 else np.nan
+
 
 
 # === Intro and Branding ===
