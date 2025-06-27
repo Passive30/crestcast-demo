@@ -139,15 +139,15 @@ blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
 # Plot the chart
 
 # --- Cumulative Return Chart ---
-st.subheader("📈 Cumulative Return Comparison (net of fees)")
+st.subheader("📈 Growth of $1,000 (net of fees)")
 
-# Precompute cumulative returns
-cum_benchmark = cumulative_return(benchmark)
+# Precompute cumulative return paths starting at $1,000
+cum_benchmark = 1000 * cumulative_return(benchmark)
 
 if macro_aware:
-    cum_blended = cumulative_return(blended_crestcast)
-    cum_crestcast = cumulative_return(net_crestcast)
-    
+    cum_blended = 1000 * cumulative_return(blended_crestcast)
+    cum_crestcast = 1000 * cumulative_return(net_crestcast)
+
     # Combine into DataFrame with macro overlay
     comparison_df = pd.DataFrame({
         f"{preferred_index} (Benchmark)": cum_benchmark,
