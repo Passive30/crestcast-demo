@@ -41,6 +41,12 @@ def max_drawdown(r):
     drawdown = (cumulative - peak) / peak
     return drawdown.min()
 def cumulative_return(series): return (1 + series).cumprod()
+def information_ratio(port, bench):
+    excess_returns = port - bench
+    tracking_error = excess_returns.std() * np.sqrt(12)
+    annualized_alpha = annualized_return(port) - annualized_return(bench)
+    return annualized_alpha / tracking_error if tracking_error != 0 else np.nan
+
 
 # === Intro and Branding ===
 st.markdown("""
@@ -188,9 +194,11 @@ def return_diff(port, bench):
 metrics = [
     "Annualized Return", "Annualized Std Dev", 
     "Beta vs Benchmark", "Alpha vs Benchmark", 
-    "Sharpe Ratio", "Max Drawdown",
-    "Up Capture", "Down Capture", "Return Outperformance"
+    "Sharpe Ratio", "Information Ratio",  # <-- new
+    "Max Drawdown", "Up Capture", "Down Capture", 
+    "Return Outperformance"
 ]
+
 
 # CrestCast metrics
 crestcast_metrics = [
@@ -198,21 +206,24 @@ crestcast_metrics = [
     annualized_std(blended_crestcast),
     *beta_alpha(blended_crestcast, benchmark),
     sharpe_ratio(blended_crestcast),
+    information_ratio(blended_crestcast, benchmark),  # <-- new
     max_drawdown(blended_crestcast),
     up_capture(blended_crestcast, benchmark),
     down_capture(blended_crestcast, benchmark),
     return_diff(blended_crestcast, benchmark)
 ]
 
-# Benchmark metrics
+
 benchmark_metrics = [
     annualized_return(benchmark),
     annualized_std(benchmark),
     None, None,
     sharpe_ratio(benchmark),
+    None,  # Information Ratio doesn't apply
     max_drawdown(benchmark),
     1.0, 1.0, 0.0
 ]
+
 
 # Format results
 def fmt(x):
