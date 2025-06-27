@@ -186,6 +186,13 @@ else:
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
 st.text(f"IR Debug: {information_ratio(blended_crestcast, benchmark):.2f}")
+alpha_check = annualized_return(blended_crestcast) - annualized_return(benchmark)
+te_check = (blended_crestcast - benchmark).std() * np.sqrt(12)
+
+st.text(f"DEBUG Alpha: {alpha_check:.4f}")
+st.text(f"DEBUG TE: {te_check:.4f}")
+st.text(f"DEBUG IR (manual): {alpha_check / te_check:.4f}")
+
 
 
 # New: Up/down capture & return delta
