@@ -206,7 +206,7 @@ crestcast_metrics = [
     annualized_std(blended_crestcast),
     *beta_alpha(blended_crestcast, benchmark),
     sharpe_ratio(blended_crestcast),
-    #information_ratio(blended_crestcast, benchmark),  # <-- new
+    information_ratio(blended_crestcast, benchmark),  # <-- new
     max_drawdown(blended_crestcast),
     up_capture(blended_crestcast, benchmark),
     down_capture(blended_crestcast, benchmark),
