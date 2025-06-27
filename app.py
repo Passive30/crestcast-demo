@@ -51,8 +51,6 @@ def information_ratio(port, bench):
     te = tracking_error(port, bench)
     return alpha / te if te != 0 else np.nan
 
-st.text(f"IR Debug: {information_ratio(blended_crestcast, benchmark):.2f}")
-
 
 
 
@@ -185,6 +183,8 @@ else:
 
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
+st.text(f"IR Debug: {information_ratio(blended_crestcast, benchmark):.2f}")
+
 
 # New: Up/down capture & return delta
 def up_capture(port, bench):
