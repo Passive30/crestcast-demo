@@ -226,10 +226,13 @@ benchmark_metrics = [
 
 
 # Format results
-def fmt(x):
+def fmt(x, metric=None):
     if x is None:
         return "-"
     if isinstance(x, (float, np.float64)):
+        # Format Sharpe and Information Ratio as raw decimals
+        if metric in ["Sharpe Ratio", "Information Ratio"]:
+            return f"{x:.2f}"
         return f"{x:.2%}" if abs(x) < 10 else f"{x:.2f}"
     return str(x)
 
@@ -240,8 +243,11 @@ summary_df = pd.DataFrame({
     "Benchmark": benchmark_metrics
 })
 
-summary_df = summary_df.applymap(fmt)
-st.table(summary_df)
+# Apply with awareness of metric type
+summary_df = summary_df.apply(
+    lambda row: [fmt(val, row["Metric"]) for val in row], axis=1, result_type='broadcast'
+)
+
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
