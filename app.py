@@ -42,14 +42,14 @@ def max_drawdown(r):
     return drawdown.min()
 def cumulative_return(series): return (1 + series).cumprod()
 def tracking_error(port, bench):
-    """Annualized standard deviation of excess returns."""
     excess_returns = port - bench
     return excess_returns.std() * np.sqrt(12)
+
 def information_ratio(port, bench):
-    """Information Ratio: Excess return over tracking error (not beta-adjusted)."""
-    alpha = annualized_return(port) - annualized_return(bench)  # Raw CAGR diff
+    alpha = annualized_return(port) - annualized_return(bench)
     te = tracking_error(port, bench)
     return alpha / te if te != 0 else np.nan
+
 
 
 
