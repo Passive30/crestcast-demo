@@ -225,28 +225,21 @@ benchmark_metrics = [
 ]
 
 
-# Format results
-def fmt(x, metric=None):
-    if x is None:
-        return "-"
-    if isinstance(x, (float, np.float64)):
-        # Format Sharpe and Information Ratio as raw decimals
-        if metric in ["Sharpe Ratio", "Information Ratio"]:
-            return f"{x:.2f}"
-        return f"{x:.2%}" if abs(x) < 10 else f"{x:.2f}"
-    return str(x)
+# Reformat each cell with awareness of metric name
+formatted_rows = []
 
-# Create and format table
-summary_df = pd.DataFrame({
-    "Metric": metrics,
-    f"CrestCast Overlay ({tracking_error})": crestcast_metrics,
-    "Benchmark": benchmark_metrics
-})
+for idx, row in summary_df.iterrows():
+    metric = row["Metric"]
+    formatted_row = {
+        "Metric": metric,
+        f"CrestCast Overlay ({tracking_error})": fmt(row[f"CrestCast Overlay ({tracking_error})"], metric),
+        "Benchmark": fmt(row["Benchmark"], metric)
+    }
+    formatted_rows.append(formatted_row)
 
-# Apply with awareness of metric type
-summary_df = summary_df.apply(
-    lambda row: [fmt(val, row["Metric"]) for val in row], axis=1, result_type='broadcast'
-)
+# Rebuild DataFrame with formatting preserved
+summary_df = pd.DataFrame(formatted_rows)
+st.table(summary_df)
 
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
