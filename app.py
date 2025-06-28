@@ -280,10 +280,11 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
 # --- Rolling 5-Year Information Ratio Chart ---
+# --- Rolling 3-Year Information Ratio Chart ---
 if macro_aware:
     st.subheader("📈 Rolling 3-Year Information Ratio (Jensen Approximation)")
 
-    rolling_window = 36  # 2 years of monthly data
+    rolling_window = 36  # 3 years of monthly data
     ir_values = []
     dates = []
 
@@ -291,12 +292,10 @@ if macro_aware:
         port = blended_crestcast.iloc[i - rolling_window:i]
         bench = benchmark.iloc[i - rolling_window:i]
 
-        # Ensure valid and clean data
         if port.isnull().any() or bench.isnull().any():
             ir_values.append(np.nan)
             continue
 
-        # Manual OLS regression: y = alpha + beta * x
         x = bench.values
         y = port.values
         x_mean = np.mean(x)
@@ -311,25 +310,13 @@ if macro_aware:
         ir_values.append(ir)
         dates.append(port.index[-1])
 
-    # Create DataFrame for chart
     ir_series = pd.Series(ir_values, index=dates).dropna()
+
     if not ir_series.empty:
-        st.line_chart(pd.DataFrame({"Rolling 5-Year IR": ir_series}))
-        st.caption("IR computed using manual Jensen alpha and residual-based tracking error (no statsmodels).")
+        st.line_chart(pd.DataFrame({"Rolling 3-Year IR": ir_series}))
+        st.caption("IR computed using Jensen alpha and residual-based tracking error over 3-year rolling windows. Values above 0.5 suggest strong, persistent alpha.")
     else:
         st.warning("Not enough clean data to calculate rolling IR.")
-
-
-    # Align with full date index
-    rolling_ir = pd.Series(ir_series, index=blended_crestcast.index[rolling_window:])
-
-    if not rolling_ir.empty:
-        ir_df = pd.DataFrame({"Rolling 5-Year IR": rolling_ir})
-        st.line_chart(ir_df)
-        st.caption("This chart uses Jensen’s alpha and regression-based tracking error over 7-year rolling windows. Values above 0.5 indicate persistent, risk-adjusted outperformance.")
-    else:
-        st.warning("Not enough data to calculate the rolling Jensen-based Information Ratio.")
-
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
