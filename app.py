@@ -333,31 +333,33 @@ if macro_aware:
         dd_crest_aligned = dd_crest.loc[ir_series.index]
         dd_bench_aligned = dd_bench.loc[ir_series.index]
 
-        # Plot IR + Drawdowns
-        fig, ax1 = plt.subplots(figsize=(10, 4))
-
-        # IR line
-        ax1.plot(ir_series.index, ir_series.values, color="skyblue", label="Rolling 3-Year IR")
+        fig, ax1 = plt.subplots(figsize=(10, 5))
+        
+        # Plot IR
+        ax1.plot(ir_series.index, ir_series.values, label="Rolling 3-Year IR", color="#1f77b4", linewidth=2)
         ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
-        ax1.set_ylabel("Information Ratio", color="skyblue")
-        ax1.tick_params(axis='y', labelcolor="skyblue")
-
-        # Drawdowns
+        ax1.set_ylabel("Information Ratio", fontsize=10, color="#1f77b4")
+        ax1.tick_params(axis='y', labelcolor="#1f77b4")
+        ax1.set_ylim(-0.5, 1.75)
+        ax1.grid(True, linestyle="--", linewidth=0.3, alpha=0.4)
+        
+        # Plot drawdowns
         ax2 = ax1.twinx()
-        ax2.plot(dd_crest_aligned.index, dd_crest_aligned.values, label="CrestCast Drawdown", color="green", linestyle="dashed", linewidth=1)
-        ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="gray", linestyle="dotted", linewidth=1)
-        ax2.set_ylabel("Drawdown", color="gray")
+        ax2.plot(dd_crest_aligned.index, dd_crest_aligned.values, label="CrestCast Drawdown", color="darkgreen", linestyle="-", linewidth=1.2, alpha=0.7)
+        ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
+        ax2.set_ylabel("Drawdown", fontsize=10, color="gray")
         ax2.tick_params(axis='y', labelcolor="gray")
-
-        ax1.set_title("Rolling 3-Year Information Ratio with Drawdown Overlay")
-        ax1.grid(True, linestyle="--", linewidth=0.3, alpha=0.7)
-
-        # Combined legend
+        ax2.set_ylim(-0.6, 0.05)
+        
+        # Title and layout
+        ax1.set_title("Rolling 3-Year Information Ratio with Drawdown Overlay", fontsize=12)
         lines_1, labels_1 = ax1.get_legend_handles_labels()
         lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="lower left")
-
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper left", frameon=False)
+        
+        fig.tight_layout()
         st.pyplot(fig)
+
 
         st.caption(
             "The red dashed line indicates the 0.5 Information Ratio threshold. "
