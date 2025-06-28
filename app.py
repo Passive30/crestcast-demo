@@ -283,9 +283,9 @@ import matplotlib.pyplot as plt
 
 # --- Rolling 3-Year Information Ratio Chart ---
 if macro_aware:
-    st.subheader("📈 Rolling 3-Year Information Ratio (Jensen Approximation)")
+    st.subheader("📈 Rolling 18-Month Information Ratio (Jensen Approximation)")
 
-    rolling_window = 36  # 3 years of monthly data
+    rolling_window = 18  # 3 years of monthly data
     ir_values = []
     dates = []
 
