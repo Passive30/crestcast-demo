@@ -281,9 +281,9 @@ st.table(summary_df)
 
 import matplotlib.pyplot as plt
 
-# --- Rolling 3-Year Information Ratio Chart ---
 # --- Rolling 3-Year IR with Drawdown Overlay ---
-if not ir_series.empty:
+if 'ir_series' in locals() and not ir_series.empty:
+
     # Calculate cumulative returns
     cumulative_crest = (1 + blended_crestcast).cumprod()
     cumulative_bench = (1 + benchmark).cumprod()
