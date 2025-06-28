@@ -318,7 +318,7 @@ if macro_aware:
         fig, ax = plt.subplots(figsize=(10, 4))
         ax.plot(ir_series.index, ir_series.values, label="Rolling 3-Year IR", color="skyblue")
         ax.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
-        ax.set_title("Rolling 3-Year Information Ratio (Jensen Approximation)")
+        ax.set_title("Rolling 18-Month Information Ratio (Jensen Approximation)")
         ax.set_ylabel("Information Ratio")
         ax.legend()
         ax.grid(True, linestyle="--", linewidth=0.3, alpha=0.7)
