@@ -286,7 +286,7 @@ import matplotlib.ticker as ticker
 
 # --- Enhanced Chart Section ---
 if macro_aware:
-    st.markdown("### 🔍 Rolling 3-Year Information Ratio vs. Drawdown Context")
+    st.markdown("### Rolling 3-Year Information Ratio vs. Drawdown Context")
 
     # Ensure clean data
     valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
