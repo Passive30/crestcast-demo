@@ -86,8 +86,9 @@ account_type = st.selectbox("Account Type", ["Individual", "Joint", "Trust", "IR
 # === Section 2: Select Base Index ===
 st.header("2. Select Core Index for Overlay")
 index_options = {
-    "S&P 500 (SPY)": "SPY",
-    "Russell 3000 (IWV)": "IWV"
+    "Russell 3000 (IWV)": "IWV",
+    "S&P 500 (SPY)": "SPY"
+    
 }
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
 preferred_index = index_options[selected_label]
@@ -101,7 +102,7 @@ if macro_aware:
     st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
 
     # Overlay Fee Dropdown
-    fee_bps = st.selectbox("Overlay Fee (basis points))", [50, 35, 20, 0], index=0)
+    fee_bps = st.selectbox("Overlay Fee (basis points))", [0, 20, 35, 50], index=0)
     annual_fee = fee_bps / 10000
     monthly_fee = annual_fee / 12
 
@@ -109,7 +110,7 @@ if macro_aware:
     tracking_error_label = "How closely should your portfolio follow the index?"
     tracking_error_label_choice = st.selectbox(
         tracking_error_label,
-        options=["Very closely", "Somewhat closely", "Flexible"],
+        options=["Flexible", "Somewhat closely", "Very Closely"],
         index=0
     )
 
