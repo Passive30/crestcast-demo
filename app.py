@@ -282,57 +282,92 @@ st.table(summary_df)
 import matplotlib.pyplot as plt
 
 # --- Rolling 3-Year IR with Drawdown Overlay ---
-if 'ir_series' in locals() and not ir_series.empty:
+if macro_aware:
+    st.subheader("📈 Rolling 3-Year Information Ratio (Jensen Approximation)")
 
-    # Calculate cumulative returns
-    cumulative_crest = (1 + blended_crestcast).cumprod()
-    cumulative_bench = (1 + benchmark).cumprod()
+    # Ensure clean and aligned data
+    valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
+    blended_crestcast = valid_data.iloc[:, 0]
+    benchmark = valid_data.iloc[:, 1]
 
-    # Drawdowns
-    dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
-    dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
+    rolling_window = 36
+    ir_values = []
+    dates = []
 
-    # Align dates with IR
-    dd_crest_aligned = dd_crest.loc[ir_series.index]
-    dd_bench_aligned = dd_bench.loc[ir_series.index]
+    # Compute rolling IR
+    for i in range(rolling_window, len(blended_crestcast)):
+        port = blended_crestcast.iloc[i - rolling_window:i]
+        bench = benchmark.iloc[i - rolling_window:i]
 
-    # Plot
-    fig, ax1 = plt.subplots(figsize=(10, 4))
+        if port.isnull().any() or bench.isnull().any():
+            ir_values.append(np.nan)
+            continue
 
-    # IR Line (left axis)
-    ax1.plot(ir_series.index, ir_series.values, color="skyblue", label="Rolling 3-Year IR")
-    ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
-    ax1.set_ylabel("Information Ratio", color="skyblue")
-    ax1.tick_params(axis='y', labelcolor="skyblue")
+        x = bench.values
+        y = port.values
+        x_mean = np.mean(x)
+        y_mean = np.mean(y)
+        beta = np.cov(x, y)[0, 1] / np.var(x)
+        alpha = y_mean - beta * x_mean
+        residuals = y - (alpha + beta * x)
+        tracking_err = np.std(residuals) * np.sqrt(12)
+        annual_alpha = alpha * 12
+        ir = annual_alpha / tracking_err if tracking_err != 0 else np.nan
 
-    # Drawdowns (right axis)
-    ax2 = ax1.twinx()
-    ax2.plot(dd_crest_aligned.index, dd_crest_aligned.values, label="CrestCast Drawdown", color="green", linestyle="dashed", linewidth=1)
-    ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="gray", linestyle="dotted", linewidth=1)
-    ax2.set_ylabel("Drawdown", color="gray")
-    ax2.tick_params(axis='y', labelcolor="gray")
+        ir_values.append(ir)
+        dates.append(port.index[-1])
 
-    # Titles and grid
-    ax1.set_title("Rolling 3-Year Information Ratio with Drawdown Overlay")
-    ax1.grid(True, linestyle="--", linewidth=0.3, alpha=0.7)
+    # Construct IR series
+    ir_series = pd.Series(ir_values, index=dates).dropna()
 
-    # Legend across both axes
-    lines_1, labels_1 = ax1.get_legend_handles_labels()
-    lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="lower left")
+    if not ir_series.empty:
+        # Calculate cumulative returns
+        cumulative_crest = (1 + blended_crestcast).cumprod()
+        cumulative_bench = (1 + benchmark).cumprod()
 
-    st.pyplot(fig)
+        # Drawdowns
+        dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
+        dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
 
-    # Enhanced caption
-    st.caption(
-        "The red dashed line indicates the 0.5 Information Ratio threshold. "
-        "Drawdowns are overlaid to explain IR volatility during periods of macro stress. "
-        "CrestCast's IR often compresses during major drawdowns — not due to underperformance, "
-        "but because its lower beta results in a smaller numerator (alpha) despite better downside protection. "
-        "This highlights the structural tradeoff of capital preservation during negative benchmarks."
-    )
-else:
-    st.warning("Not enough clean data to calculate rolling IR or drawdowns.")
+        # Align with IR window
+        dd_crest_aligned = dd_crest.loc[ir_series.index]
+        dd_bench_aligned = dd_bench.loc[ir_series.index]
+
+        # Plot IR + Drawdowns
+        fig, ax1 = plt.subplots(figsize=(10, 4))
+
+        # IR line
+        ax1.plot(ir_series.index, ir_series.values, color="skyblue", label="Rolling 3-Year IR")
+        ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
+        ax1.set_ylabel("Information Ratio", color="skyblue")
+        ax1.tick_params(axis='y', labelcolor="skyblue")
+
+        # Drawdowns
+        ax2 = ax1.twinx()
+        ax2.plot(dd_crest_aligned.index, dd_crest_aligned.values, label="CrestCast Drawdown", color="green", linestyle="dashed", linewidth=1)
+        ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="gray", linestyle="dotted", linewidth=1)
+        ax2.set_ylabel("Drawdown", color="gray")
+        ax2.tick_params(axis='y', labelcolor="gray")
+
+        ax1.set_title("Rolling 3-Year Information Ratio with Drawdown Overlay")
+        ax1.grid(True, linestyle="--", linewidth=0.3, alpha=0.7)
+
+        # Combined legend
+        lines_1, labels_1 = ax1.get_legend_handles_labels()
+        lines_2, labels_2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="lower left")
+
+        st.pyplot(fig)
+
+        st.caption(
+            "The red dashed line indicates the 0.5 Information Ratio threshold. "
+            "Drawdowns are overlaid to explain IR volatility during periods of macro stress. "
+            "CrestCast's IR often compresses during major drawdowns — not due to underperformance, "
+            "but because its lower beta results in a smaller numerator (alpha) despite better downside protection. "
+            "This highlights the structural tradeoff of capital preservation during negative benchmarks."
+        )
+    else:
+        st.warning("Not enough clean data to calculate rolling IR or drawdowns.")
 
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
