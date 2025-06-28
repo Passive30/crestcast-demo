@@ -283,7 +283,7 @@ st.table(summary_df)
 if macro_aware:
     st.subheader("📈 Rolling 5-Year Information Ratio (Jensen Approximation)")
 
-    rolling_window = 36  # 7 years of monthly data
+    rolling_window = 18  # 7 years of monthly data
     ir_values = []
     dates = []
 
