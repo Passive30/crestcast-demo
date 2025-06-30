@@ -75,8 +75,14 @@ This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhan
 
 # === Section 1: Simulation Parameters ===
 st.header("1. Simulation Setup")
-client_name = st.text_input("Client (or Demo Label)", value="")
-account_type = st.selectbox("Account Type", ["Individual", "Joint", "Trust", "IRA", "Corporate", "Other"])
+st.info(
+    "This demo is preconfigured to highlight the full power of the CrestCast™ overlay. "
+    "**Macro overlay is always enabled**, tracking flexibility is set to **maximum**, and a value screen to exclude tobacco is applied by default. "
+    "Overlay fee is adjustable below, starting at 0 basis points."
+)
+client_name = "CC Demo"
+st.markdown(f"**Demo Label:** {client_name}")
+account_type = "Individual"
 
 # === Section 2: Select Base Index ===
 st.header("2. Select Core Index for Overlay")
@@ -391,17 +397,9 @@ st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
 
 tax_aware = st.checkbox("Enable Tax-Aware Overlay")
 
-value_screens = st.multiselect(
-    "Apply Value Screens (optional)",
-    options=[
-        "Exclude Tobacco",
-        "Exclude Fossil Fuels",
-        "Exclude Defense Contractors",
-        "ESG Tilt",
-        "Faith-Based Screen",
-        "Climate Alignment"
-    ]
-)
+# Hard-coded for demo: only exclude tobacco
+value_screens = ["Exclude Tobacco"]
+st.markdown("🛡️ Value Screens Applied: **Exclude Tobacco**")
 
 
 # --- Section 7: Summary Recap ---
