@@ -284,8 +284,6 @@ st.markdown("#### 📊 Performance View Options")
 
 show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
 
-show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
-
 if show_relative_perf:
     st.subheader("📉 Rolling 10-Year Annualized Outperformance")
 
