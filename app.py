@@ -102,19 +102,17 @@ if macro_aware:
     monthly_fee = annual_fee / 12
 
     # Friendly Tracking Error Dropdown
+    # Hard-coded tracking error preference
     tracking_error_label = "How closely should your portfolio follow the index?"
     tracking_error_label_choice = "Flexible"
 
-            index=0
-        )
-
     # Map investor-friendly terms to λ
-    lambda_values = {
-        "Very closely": 0.2,
-        "Somewhat closely": 0.5,
-        "Flexible": 1.0
-    }
-    lam = 1.0
+lambda_values = {
+    "Very closely": 0.2,
+    "Somewhat closely": 0.5,
+    "Flexible": 1.0
+}
+lam = lambda_values[tracking_error_label_choice]
 
 
     # Optional Email Opt-In
