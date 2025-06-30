@@ -70,16 +70,19 @@ def information_ratio(port, bench):
 st.markdown("""
 # Passive 3.0™ Macro Overlay  
 ### Direct Indexing Demonstration | Powered by Intervallum Technologies
-This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhance any core index using regime-aware factor rotation.
+This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhance a core index using regime-aware factor rotation.
 """)
 
 # === Section 1: Simulation Parameters ===
 st.header("1. Simulation Setup")
 st.info(
-    "This demo is preconfigured to highlight the full power of the CrestCast™ overlay. "
-    "**Macro overlay is always enabled**, tracking flexibility is set to **maximum**, and a value screen to exclude tobacco is applied by default. "
-    "Overlay fee is adjustable below, starting at 0 basis points."
+    "This demo is preconfigured to highlight the full power of the CrestCast™ Macro-Aware U.S. Factor Rotation Index. "
+    "The results shown reflect a hypothetical full implementation of the index overlay, using simple ETF rotation logic until the live index becomes available. "
+    "Prior to 2014, the index is estimated using French Factor Data. "
+    "A value screen to exclude tobacco is applied by default to demonstrate personalization potential. "
+    "The overlay fee is adjustable below, starting at 0 basis points."
 )
+
 client_name = "CC Demo"
 st.markdown(f"**Demo Label:** {client_name}")
 account_type = "Individual"
