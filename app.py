@@ -201,49 +201,6 @@ if not comparison_df.empty:
 else:
     st.warning("Not enough data to plot. Please try a different date range.")
 
-# --- Optional Toggle for Rolling Outperformance ---
-st.markdown("#### 📊 Performance View Options")
-
-show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
-
-show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
-
-if show_relative_perf:
-    st.subheader("📉 Rolling 10-Year Annualized Outperformance")
-
-    # [Insert bar chart code here]
-    
-    st.subheader("📈 Rolling 10-Year Information Ratio vs. Drawdown")
-
-    # [Insert IR + drawdown chart code here]
-    
-else:
-    st.subheader("📈 Growth of $1,000 (net of fees)")
-
-    # [Insert cumulative return chart here]
-
-
-    # Calculate 3-year rolling performance difference
-    # Calculate rolling 3-year annualized return
-    crest_rolling_ann = net_crestcast.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
-    bench_rolling_ann = benchmark.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
-    
-    # Compute the annualized spread
-    rel_perf = crest_rolling_ann - bench_rolling_ann
-    rel_perf = rel_perf.dropna()
-
-    # Plot as bar chart
-    fig, ax = plt.subplots(figsize=(10, 4))
-    colors = ["green" if val >= 0 else "red" for val in rel_perf]
-    ax.bar(rel_perf.index, rel_perf.values, color=colors, width=20)
-    ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-    ax.set_title("Rolling 10-Year Outperformance vs. Benchmark")
-    ax.set_ylabel("CrestCast – Benchmark (Annualized Return)")
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-    ax.grid(True, linestyle="--", alpha=0.3)
-    st.pyplot(fig)
-
-    st.caption("Each bar represents CrestCast’s outperformance or underperformance over the prior 3 years. Green bars indicate periods of relative outperformance; red bars indicate relative lag.")
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
 
@@ -322,6 +279,49 @@ for i in range(len(metrics)):
 
 summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
+# --- Optional Toggle for Rolling Outperformance ---
+st.markdown("#### 📊 Performance View Options")
+
+show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
+
+show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
+
+if show_relative_perf:
+    st.subheader("📉 Rolling 10-Year Annualized Outperformance")
+
+    # [Insert bar chart code here]
+    
+    st.subheader("📈 Rolling 10-Year Information Ratio vs. Drawdown")
+
+    # [Insert IR + drawdown chart code here]
+    
+else:
+    st.subheader("📈 Growth of $1,000 (net of fees)")
+
+    # [Insert cumulative return chart here]
+
+
+    # Calculate 3-year rolling performance difference
+    # Calculate rolling 3-year annualized return
+    crest_rolling_ann = net_crestcast.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+    bench_rolling_ann = benchmark.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+    
+    # Compute the annualized spread
+    rel_perf = crest_rolling_ann - bench_rolling_ann
+    rel_perf = rel_perf.dropna()
+
+    # Plot as bar chart
+    fig, ax = plt.subplots(figsize=(10, 4))
+    colors = ["green" if val >= 0 else "red" for val in rel_perf]
+    ax.bar(rel_perf.index, rel_perf.values, color=colors, width=20)
+    ax.axhline(0, color="gray", linestyle="--", linewidth=1)
+    ax.set_title("Rolling 10-Year Outperformance vs. Benchmark")
+    ax.set_ylabel("CrestCast – Benchmark (Annualized Return)")
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+    ax.grid(True, linestyle="--", alpha=0.3)
+    st.pyplot(fig)
+
+    st.caption("Each bar represents CrestCast’s outperformance or underperformance over the prior 3 years. Green bars indicate periods of relative outperformance; red bars indicate relative lag.")
 
 import matplotlib.pyplot as plt
 
