@@ -287,7 +287,7 @@ for i in range(len(metrics)):
     
     formatted_data.append({
         "Metric": metric,
-        f"CrestCast Overlay ({tracking_error})": fmt(cc_val, metric),
+        f"CrestCast Overlay ({tracking_error_label_choice})": fmt(cc_val, metric),
         "Benchmark": fmt(bench_val, metric)
     })
 
