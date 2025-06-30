@@ -105,8 +105,8 @@ if macro_aware:
     tracking_error_label = "How closely should your portfolio follow the index?"
     tracking_error_label_choice = "Flexible"
 
-        index=0
-    )
+            index=0
+        )
 
     # Map investor-friendly terms to λ
     lambda_values = {
