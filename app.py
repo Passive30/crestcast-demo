@@ -201,6 +201,32 @@ if not comparison_df.empty:
 else:
     st.warning("Not enough data to plot. Please try a different date range.")
 
+# --- Optional Toggle for Rolling Outperformance ---
+st.markdown("#### 📊 Performance View Options")
+
+show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
+
+if show_relative_perf:
+    st.subheader("📉 Rolling 3-Year Relative Performance")
+
+    # Calculate 3-year rolling performance difference
+    crest_rolling = net_crestcast.rolling(window=36).apply(lambda r: (1 + r).prod() - 1)
+    bench_rolling = benchmark.rolling(window=36).apply(lambda r: (1 + r).prod() - 1)
+    rel_perf = crest_rolling - bench_rolling
+    rel_perf = rel_perf.dropna()
+
+    # Plot as bar chart
+    fig, ax = plt.subplots(figsize=(10, 4))
+    colors = ["green" if val >= 0 else "red" for val in rel_perf]
+    ax.bar(rel_perf.index, rel_perf.values, color=colors, width=20)
+    ax.axhline(0, color="gray", linestyle="--", linewidth=1)
+    ax.set_title("Rolling 3-Year Outperformance vs. Benchmark")
+    ax.set_ylabel("CrestCast – Benchmark (%)")
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+    ax.grid(True, linestyle="--", alpha=0.3)
+    st.pyplot(fig)
+
+    st.caption("Each bar represents CrestCast’s outperformance or underperformance over the prior 3 years. Green bars indicate periods of relative outperformance; red bars indicate relative lag.")
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
 
