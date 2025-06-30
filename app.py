@@ -107,12 +107,12 @@ if macro_aware:
     tracking_error_label_choice = "Flexible"
 
     # Map investor-friendly terms to λ
-lambda_values = {
-    "Very closely": 0.2,
-    "Somewhat closely": 0.5,
-    "Flexible": 1.0
-}
-lam = lambda_values[tracking_error_label_choice]
+    lambda_values = {
+        "Very closely": 0.2,
+        "Somewhat closely": 0.5,
+        "Flexible": 1.0
+    }
+    lam = lambda_values[tracking_error_label_choice]
 
 
     # Optional Email Opt-In
