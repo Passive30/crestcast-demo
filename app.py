@@ -173,7 +173,8 @@ if macro_aware:
 
     comparison_df = pd.DataFrame({
         f"{preferred_index} (Benchmark)": cum_benchmark,
-        f"CrestCast Overlay ({tracking_error})": cum_blended,
+        f"CrestCast Overlay ({tracking_error_label_choice})"
+: cum_blended,
         "CrestCast (100% Net of Fee)": cum_crestcast
     })
 else:
