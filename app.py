@@ -211,8 +211,8 @@ if show_relative_perf:
 
     # Calculate 3-year rolling performance difference
     # Calculate rolling 3-year annualized return
-    crest_rolling_ann = net_crestcast.rolling(window=84).apply(lambda r: (1 + r).prod()**(1/3) - 1)
-    bench_rolling_ann = benchmark.rolling(window=84).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+    crest_rolling_ann = net_crestcast.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+    bench_rolling_ann = benchmark.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
     
     # Compute the annualized spread
     rel_perf = crest_rolling_ann - bench_rolling_ann
