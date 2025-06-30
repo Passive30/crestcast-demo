@@ -412,6 +412,6 @@ st.write(f"**Preferred Index:** {preferred_index}")
 st.write(f"**Overlay Fee:** {fee_bps} bps")
 st.write(f"**Macro-Aware Overlay:** {'Enabled' if macro_aware else 'Disabled'}")
 if macro_aware:
-    st.write(f"**Tracking Error Target:** {tracking_error}")
+    st.write(f"**Tracking Error Target:** {tracking_error_label_choice}")
 st.write(f"**Tax-Aware Overlay:** {'Enabled' if tax_aware else 'Disabled'}")
 st.write(f"**Value Screens:** {', '.join(value_screens) if value_screens else 'None'}")
