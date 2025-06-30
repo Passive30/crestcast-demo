@@ -232,6 +232,7 @@ metrics = [
 
 
 
+
 # CrestCast metrics
 crestcast_metrics = [
     annualized_return(blended_crestcast),
@@ -252,10 +253,12 @@ benchmark_metrics = [
     annualized_std(benchmark),
     None, None,
     sharpe_ratio(benchmark),
-    None,  # Tracking Error placeholder
-    None,  # Information Ratio    max_drawdown(benchmark),
+    None,  # <-- Tracking Error placeholder
+    None,  # <-- Information Ratio
+    max_drawdown(benchmark),
     1.0, 1.0, 0.0
 ]
+
 
 
 # Format function with metric context
