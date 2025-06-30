@@ -110,7 +110,7 @@ if macro_aware:
     tracking_error_label = "How closely should your portfolio follow the index?"
     tracking_error_label_choice = st.selectbox(
         tracking_error_label,
-        options=["Flexible", "Somewhat closely", "Very Closely"],
+        options=["Flexible", "Somewhat closely", "Very closely"],
         index=0
     )
 
