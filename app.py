@@ -66,11 +66,6 @@ def information_ratio(port, bench):
         return np.nan
 
 
-
-
-
-
-
 # === Intro and Branding ===
 st.markdown("""
 # Passive 3.0™ Macro Overlay  
@@ -97,7 +92,6 @@ preferred_index = index_options[selected_label]
 st.header("3. Activate Macro-Aware Overlay")
 macro_aware = st.checkbox("Enable Macro-Aware Overlay?")
 
-
 if macro_aware:
     st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
 
@@ -113,7 +107,6 @@ if macro_aware:
         options=["Flexible", "Somewhat closely", "Very closely"],
         index=0
     )
-
 
     # Map investor-friendly terms to λ
     lambda_values = {
@@ -168,8 +161,6 @@ net_crestcast = valid_data.iloc[:, 1]
 # Blend based on tracking error (λ)
 blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
 
-# Plot the chart
-
 # --- Cumulative Return Chart ---
 st.subheader("📈 Growth of $1,000 (net of fees)")
 
@@ -203,8 +194,6 @@ else:
 
 # --- Performance Summary Table ---
 st.subheader("📊 Performance Summary (net of fees)")
-
-
 
 # New: Up/down capture & return delta
 def up_capture(port, bench):
@@ -281,8 +270,6 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 # --- Optional Toggle for Rolling Outperformance ---
 st.markdown("#### 📊 Performance View Options")
-
-show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
 
 show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
 
