@@ -324,7 +324,7 @@ if macro_aware:
     benchmark = valid_data.iloc[:, 1]
 
     # --- Compute Rolling IR ---
-    rolling_window = 36
+    rolling_window = 120
     ir_values = []
     dates = []
 
@@ -365,7 +365,7 @@ if macro_aware:
         fig, ax1 = plt.subplots(figsize=(10, 5))
 
         # IR line (primary axis)
-        ax1.plot(ir_series.index, ir_series.values, label="Rolling 3-Year IR", color="#1f77b4", linewidth=2)
+        ax1.plot(ir_series.index, ir_series.values, label="Rolling 10-Year IR", color="#1f77b4", linewidth=2)
         ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
         ax1.set_ylabel("Information Ratio", fontsize=10, color="#1f77b4")
         ax1.set_ylim(-0.5, 1.75)
