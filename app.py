@@ -315,94 +315,94 @@ import matplotlib.pyplot as plt
 # --- Rolling 3-Year IR with Drawdown Overlay ---
 import matplotlib.ticker as ticker
 
-# --- Enhanced Chart Section ---
-if macro_aware:
-    st.markdown("### Rolling 3-Year Information Ratio vs. Drawdown Context")
-
-    # Ensure clean data
-    valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
-    blended_crestcast = valid_data.iloc[:, 0]
-    benchmark = valid_data.iloc[:, 1]
-
-    # --- Compute Rolling IR ---
-    rolling_window = 120
-    ir_values = []
-    dates = []
-
-    for i in range(rolling_window, len(blended_crestcast)):
-        port = blended_crestcast.iloc[i - rolling_window:i]
-        bench = benchmark.iloc[i - rolling_window:i]
-
-        if port.isnull().any() or bench.isnull().any():
-            ir_values.append(np.nan)
-            continue
-
-        x = bench.values
-        y = port.values
-        x_mean = np.mean(x)
-        y_mean = np.mean(y)
-        beta = np.cov(x, y)[0, 1] / np.var(x)
-        alpha = y_mean - beta * x_mean
-        residuals = y - (alpha + beta * x)
-        tracking_err = np.std(residuals) * np.sqrt(12)
-        annual_alpha = alpha * 12
-        ir = annual_alpha / tracking_err if tracking_err != 0 else np.nan
-
-        ir_values.append(ir)
-        dates.append(port.index[-1])
-
-    ir_series = pd.Series(ir_values, index=dates).dropna()
-
-    if not ir_series.empty:
-        # --- Drawdown Calculation ---
-        cumulative_crest = (1 + blended_crestcast).cumprod()
-        cumulative_bench = (1 + benchmark).cumprod()
-        dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
-        dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
-        dd_crest_aligned = dd_crest.loc[ir_series.index]
-        dd_bench_aligned = dd_bench.loc[ir_series.index]
-
-        # --- Plot ---
-        fig, ax1 = plt.subplots(figsize=(10, 5))
-
-        # IR line (primary axis)
-        ax1.plot(ir_series.index, ir_series.values, label="Rolling 10-Year IR", color="#1f77b4", linewidth=2)
-        ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
-        ax1.set_ylabel("Information Ratio", fontsize=10, color="#1f77b4")
-        ax1.set_ylim(-0.5, 1.75)
-        ax1.yaxis.set_major_locator(ticker.MaxNLocator(6))
-        ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
-        ax1.grid(True, linestyle="--", alpha=0.3)
-
-        # Drawdown area (secondary axis)
-        ax2 = ax1.twinx()
-        ax2.fill_between(dd_crest_aligned.index, dd_crest_aligned.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
-        ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
-        ax2.set_ylabel("Drawdown", fontsize=10, color="gray")
-        ax2.set_ylim(-0.6, 0.05)
-        ax2.tick_params(axis='y', labelcolor="gray", labelsize=9)
-
-        # Legend
-        lines_1, labels_1 = ax1.get_legend_handles_labels()
-        lines_2, labels_2 = ax2.get_legend_handles_labels()
-        ax1.legend(lines_1 + lines_2, labels_1 + labels_2,
-                   loc="upper center", bbox_to_anchor=(0.5, -0.15),
-                   ncol=2, frameon=False)
-
-        fig.tight_layout()
-        st.pyplot(fig)
-
-        # --- Institutional Caption ---
-        st.caption(
-            "**Interpretation:** This chart reveals how CrestCast's rolling 3-year Information Ratio moves in relation to market drawdowns. "
-            "During periods of major macro stress (e.g., 2008, 2020, 2022), the IR often compresses — not due to strategy failure, "
-            "but because CrestCast’s lower-beta profile reduces alpha in falling markets even as it mitigates losses significantly. "
-            "The drawdown overlays make this visible: IR may dip, but capital is preserved. "
-            "Over the full cycle, this is what sustains long-term, risk-adjusted alpha."
-        )
-    else:
-        st.warning("Not enough clean data to calculate rolling IR or drawdowns.")
-
+    # --- Enhanced Chart Section ---
+    if macro_aware:
+        st.markdown("### Rolling 3-Year Information Ratio vs. Drawdown Context")
+    
+        # Ensure clean data
+        valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
+        blended_crestcast = valid_data.iloc[:, 0]
+        benchmark = valid_data.iloc[:, 1]
+    
+        # --- Compute Rolling IR ---
+        rolling_window = 120
+        ir_values = []
+        dates = []
+    
+        for i in range(rolling_window, len(blended_crestcast)):
+            port = blended_crestcast.iloc[i - rolling_window:i]
+            bench = benchmark.iloc[i - rolling_window:i]
+    
+            if port.isnull().any() or bench.isnull().any():
+                ir_values.append(np.nan)
+                continue
+    
+            x = bench.values
+            y = port.values
+            x_mean = np.mean(x)
+            y_mean = np.mean(y)
+            beta = np.cov(x, y)[0, 1] / np.var(x)
+            alpha = y_mean - beta * x_mean
+            residuals = y - (alpha + beta * x)
+            tracking_err = np.std(residuals) * np.sqrt(12)
+            annual_alpha = alpha * 12
+            ir = annual_alpha / tracking_err if tracking_err != 0 else np.nan
+    
+            ir_values.append(ir)
+            dates.append(port.index[-1])
+    
+        ir_series = pd.Series(ir_values, index=dates).dropna()
+    
+        if not ir_series.empty:
+            # --- Drawdown Calculation ---
+            cumulative_crest = (1 + blended_crestcast).cumprod()
+            cumulative_bench = (1 + benchmark).cumprod()
+            dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
+            dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
+            dd_crest_aligned = dd_crest.loc[ir_series.index]
+            dd_bench_aligned = dd_bench.loc[ir_series.index]
+    
+            # --- Plot ---
+            fig, ax1 = plt.subplots(figsize=(10, 5))
+    
+            # IR line (primary axis)
+            ax1.plot(ir_series.index, ir_series.values, label="Rolling 10-Year IR", color="#1f77b4", linewidth=2)
+            ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
+            ax1.set_ylabel("Information Ratio", fontsize=10, color="#1f77b4")
+            ax1.set_ylim(-0.5, 1.75)
+            ax1.yaxis.set_major_locator(ticker.MaxNLocator(6))
+            ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
+            ax1.grid(True, linestyle="--", alpha=0.3)
+    
+            # Drawdown area (secondary axis)
+            ax2 = ax1.twinx()
+            ax2.fill_between(dd_crest_aligned.index, dd_crest_aligned.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
+            ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
+            ax2.set_ylabel("Drawdown", fontsize=10, color="gray")
+            ax2.set_ylim(-0.6, 0.05)
+            ax2.tick_params(axis='y', labelcolor="gray", labelsize=9)
+    
+            # Legend
+            lines_1, labels_1 = ax1.get_legend_handles_labels()
+            lines_2, labels_2 = ax2.get_legend_handles_labels()
+            ax1.legend(lines_1 + lines_2, labels_1 + labels_2,
+                       loc="upper center", bbox_to_anchor=(0.5, -0.15),
+                       ncol=2, frameon=False)
+    
+            fig.tight_layout()
+            st.pyplot(fig)
+    
+            # --- Institutional Caption ---
+            st.caption(
+                "**Interpretation:** This chart reveals how CrestCast's rolling 3-year Information Ratio moves in relation to market drawdowns. "
+                "During periods of major macro stress (e.g., 2008, 2020, 2022), the IR often compresses — not due to strategy failure, "
+                "but because CrestCast’s lower-beta profile reduces alpha in falling markets even as it mitigates losses significantly. "
+                "The drawdown overlays make this visible: IR may dip, but capital is preserved. "
+                "Over the full cycle, this is what sustains long-term, risk-adjusted alpha."
+            )
+        else:
+            st.warning("Not enough clean data to calculate rolling IR or drawdowns.")
+    
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
