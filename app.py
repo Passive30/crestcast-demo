@@ -310,10 +310,10 @@ else:
 
     st.caption("Each bar represents CrestCast’s outperformance or underperformance over the prior 3 years. Green bars indicate periods of relative outperformance; red bars indicate relative lag.")
 
-import matplotlib.pyplot as plt
-
-# --- Rolling 3-Year IR with Drawdown Overlay ---
-import matplotlib.ticker as ticker
+    import matplotlib.pyplot as plt
+    
+    # --- Rolling 3-Year IR with Drawdown Overlay ---
+    import matplotlib.ticker as ticker
 
     # --- Enhanced Chart Section ---
     if macro_aware:
