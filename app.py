@@ -207,7 +207,7 @@ st.markdown("#### 📊 Performance View Options")
 show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
 
 if show_relative_perf:
-    st.subheader("📉 Rolling 3-Year Relative Performance")
+    st.subheader("📉 Rolling 7-Year Relative Performance")
 
     # Calculate 3-year rolling performance difference
     # Calculate rolling 3-year annualized return
@@ -223,8 +223,8 @@ if show_relative_perf:
     colors = ["green" if val >= 0 else "red" for val in rel_perf]
     ax.bar(rel_perf.index, rel_perf.values, color=colors, width=20)
     ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-    ax.set_title("Rolling 3-Year Outperformance vs. Benchmark")
-    ax.set_ylabel("CrestCast – Benchmark (%)")
+    ax.set_title("Rolling 7-Year Outperformance vs. Benchmark")
+    ax.set_ylabel("CrestCast – Benchmark (Annualized Return)")
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
     ax.grid(True, linestyle="--", alpha=0.3)
     st.pyplot(fig)
