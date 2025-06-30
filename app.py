@@ -168,15 +168,23 @@ st.subheader("📈 Net Total Return Over Selected Period (%)")
 cum_benchmark = (1 + benchmark).cumprod() - 1
 
 if macro_aware:
-    cum_blended = (1 + blended_crestcast).cumprod() - 1
     cum_crestcast = (1 + net_crestcast).cumprod() - 1
+    cum_blended = (1 + blended_crestcast).cumprod() - 1
 
-    comparison_df = pd.DataFrame({
-        f"{preferred_index} (Benchmark)": cum_benchmark,
-        f"CrestCast Overlay ({tracking_error_label_choice})"
-: cum_blended,
-        "CrestCast (100% Net of Fee)": cum_crestcast
-    })
+    if lam == 1.0:
+        # Only show benchmark + full CrestCast line
+        comparison_df = pd.DataFrame({
+            f"{preferred_index} (Benchmark)": cum_benchmark,
+            "CrestCast (100% Net of Fee)": cum_crestcast
+        })
+    else:
+        # Show all three
+        comparison_df = pd.DataFrame({
+            f"{preferred_index} (Benchmark)": cum_benchmark,
+            f"CrestCast Overlay ({tracking_error_label_choice})": cum_blended,
+            "CrestCast (100% Net of Fee)": cum_crestcast
+        })
+
 else:
     comparison_df = pd.DataFrame({
         f"{preferred_index} (Benchmark)": cum_benchmark
