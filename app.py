@@ -103,9 +103,8 @@ if macro_aware:
 
     # Friendly Tracking Error Dropdown
     tracking_error_label = "How closely should your portfolio follow the index?"
-    tracking_error_label_choice = st.selectbox(
-        tracking_error_label,
-        options=["Flexible", "Somewhat closely", "Very closely"],
+    tracking_error_label_choice = "Flexible"
+
         index=0
     )
 
@@ -115,7 +114,7 @@ if macro_aware:
         "Somewhat closely": 0.5,
         "Flexible": 1.0
     }
-    lam = lambda_values[tracking_error_label_choice]
+    lam = 1.0
 
 
     # Optional Email Opt-In
