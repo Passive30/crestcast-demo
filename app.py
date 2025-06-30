@@ -206,8 +206,22 @@ st.markdown("#### 📊 Performance View Options")
 
 show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
 
+show_relative_perf = st.checkbox("🔁 View Rolling Relative Performance", value=False)
+
 if show_relative_perf:
-    st.subheader("📉 Rolling 10-Year Relative Performance")
+    st.subheader("📉 Rolling 10-Year Annualized Outperformance")
+
+    # [Insert bar chart code here]
+    
+    st.subheader("📈 Rolling 10-Year Information Ratio vs. Drawdown")
+
+    # [Insert IR + drawdown chart code here]
+    
+else:
+    st.subheader("📈 Growth of $1,000 (net of fees)")
+
+    # [Insert cumulative return chart here]
+
 
     # Calculate 3-year rolling performance difference
     # Calculate rolling 3-year annualized return
