@@ -90,7 +90,8 @@ preferred_index = index_options[selected_label]
 
 # === Section 3: Activate Overlay Logic ===
 st.header("3. Activate Macro-Aware Overlay")
-macro_aware = st.checkbox("Enable Macro-Aware Overlay?")
+macro_aware = True
+
 
 if macro_aware:
     st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
