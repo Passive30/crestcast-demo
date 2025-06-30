@@ -161,34 +161,39 @@ net_crestcast = valid_data.iloc[:, 1]
 # Blend based on tracking error (λ)
 blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
 
-# --- Cumulative Return Chart ---
-st.subheader("📈 Growth of $1,000 (net of fees)")
+# --- Section: Percent Return Over Selected Time Range ---
+st.subheader("📈 Net Total Return Over Selected Period (%)")
 
-# Precompute cumulative return paths starting at $1,000
-cum_benchmark = 1000 * cumulative_return(benchmark)
+# Calculate cumulative return as percent
+cum_benchmark = (1 + benchmark).cumprod() - 1
 
 if macro_aware:
-    cum_blended = 1000 * cumulative_return(blended_crestcast)
-    cum_crestcast = 1000 * cumulative_return(net_crestcast)
+    cum_blended = (1 + blended_crestcast).cumprod() - 1
+    cum_crestcast = (1 + net_crestcast).cumprod() - 1
 
-    # Combine into DataFrame with macro overlay
     comparison_df = pd.DataFrame({
         f"{preferred_index} (Benchmark)": cum_benchmark,
         f"CrestCast Overlay ({tracking_error})": cum_blended,
         "CrestCast (100% Net of Fee)": cum_crestcast
     })
 else:
-    # Show benchmark only
     comparison_df = pd.DataFrame({
         f"{preferred_index} (Benchmark)": cum_benchmark
     })
 
-# Drop NaNs to avoid blank charts
 comparison_df = comparison_df.dropna()
 
-# Plot the chart
+# Plot full-width with matplotlib
 if not comparison_df.empty:
-    st.line_chart(comparison_df)
+    fig, ax = plt.subplots(figsize=(12, 4))
+    for col in comparison_df.columns:
+        ax.plot(comparison_df.index, comparison_df[col], label=col)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+    ax.set_title("Net Total Return Over Selected Period", fontsize=12)
+    ax.set_ylabel("Cumulative Return (%)")
+    ax.legend(loc="upper left", fontsize=9)
+    ax.grid(True, linestyle="--", alpha=0.3)
+    st.pyplot(fig)
 else:
     st.warning("Not enough data to plot. Please try a different date range.")
 
