@@ -210,8 +210,8 @@ if show_relative_perf:
     st.subheader("📉 Rolling 3-Year Relative Performance")
 
     # Calculate 3-year rolling performance difference
-    crest_rolling = net_crestcast.rolling(window=36).apply(lambda r: (1 + r).prod() - 1)
-    bench_rolling = benchmark.rolling(window=36).apply(lambda r: (1 + r).prod() - 1)
+    crest_rolling = net_crestcast.rolling(window=60).apply(lambda r: (1 + r).prod() - 1)
+    bench_rolling = benchmark.rolling(window=60).apply(lambda r: (1 + r).prod() - 1)
     rel_perf = crest_rolling - bench_rolling
     rel_perf = rel_perf.dropna()
 
