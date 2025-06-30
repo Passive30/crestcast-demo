@@ -225,10 +225,11 @@ def return_diff(port, bench):
 metrics = [
     "Annualized Return", "Annualized Std Dev", 
     "Beta vs Benchmark", "Alpha vs Benchmark", 
-    "Sharpe Ratio", "Information Ratio",  # <-- new
+    "Sharpe Ratio", "Tracking Error", "Information Ratio",
     "Max Drawdown", "Up Capture", "Down Capture", 
     "Return Outperformance"
 ]
+
 
 
 # CrestCast metrics
@@ -237,6 +238,7 @@ crestcast_metrics = [
     annualized_std(blended_crestcast),
     *beta_alpha(blended_crestcast, benchmark),
     sharpe_ratio(blended_crestcast),
+    tracking_error(blended_crestcast, benchmark),
     information_ratio(blended_crestcast, benchmark),  # <-- new
     max_drawdown(blended_crestcast),
     up_capture(blended_crestcast, benchmark),
@@ -250,8 +252,8 @@ benchmark_metrics = [
     annualized_std(benchmark),
     None, None,
     sharpe_ratio(benchmark),
-    None,  # Information Ratio doesn't apply
-    max_drawdown(benchmark),
+    None,  # Tracking Error placeholder
+    None,  # Information Ratio    max_drawdown(benchmark),
     1.0, 1.0, 0.0
 ]
 
