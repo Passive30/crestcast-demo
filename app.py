@@ -25,8 +25,20 @@ returns_df = returns_df.apply(pd.to_numeric, errors='coerce')
 returns_df = returns_df.dropna(how="all")
 
 # === Metric Functions ===
-def annualized_return(r): return (1 + r.mean()) ** 12 - 1
-def annualized_std(r): return r.std() * np.sqrt(12)
+def annualized_return(r):
+    if r.empty:
+        return np.nan
+    total_return = (1 + r).prod() - 1
+    n_months = len(r)
+    if n_months < 1:
+        return np.nan
+    return (1 + total_return) ** (12 / n_months) - 1
+
+def annualized_std(r):
+    if r.empty:
+        return np.nan
+    return r.std() * np.sqrt(12)
+
 def beta_alpha(port, bench):
     df = pd.concat([port, bench], axis=1).dropna()
     if df.shape[0] < 2: return np.nan, np.nan
