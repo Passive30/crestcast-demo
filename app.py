@@ -258,7 +258,7 @@ metrics = [
     "Annualized Return", "Annualized Std Dev", 
     "Beta vs Benchmark", "Alpha vs Benchmark", 
     "Sharpe Ratio", "Tracking Error", "Information Ratio",
-    "Max Drawdown", "Ulcer Index", "Ulcer Ratio", "Up Capture", "Down Capture", 
+    "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture", 
     "Return Outperformance"
 ]
 
