@@ -274,8 +274,7 @@ crestcast_metrics = [
     tracking_error(blended_crestcast, benchmark),
     information_ratio(blended_crestcast, benchmark),  # <-- new
     max_drawdown(blended_crestcast),
-    ulcer_index(blended_crestcast),
-    ulcer_ratio(blended_crestcast),
+    ulcer_ratio(blended_crestcast, benchmark),
     up_capture(blended_crestcast, benchmark),
     down_capture(blended_crestcast, benchmark),
     return_diff(blended_crestcast, benchmark)
@@ -290,8 +289,7 @@ benchmark_metrics = [
     None,  # <-- Tracking Error placeholder
     None,  # <-- Information Ratio
     max_drawdown(benchmark),
-    ulcer_index(benchmark),
-    ulcer_ratio(benchmark),
+    None, 
     1.0, 1.0, 0.0
 ]
 
