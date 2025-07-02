@@ -300,7 +300,7 @@ def fmt(x, metric=None):
     if x is None:
         return "-"
     if isinstance(x, (float, np.float64)):
-        if metric in ["Sharpe Ratio", "Information Ratio"]:
+        if metric in ["Sharpe Ratio", "Information Ratio", "Ulcer Ratio"]:
             return f"{x:.2f}"
         return f"{x:.2%}" if abs(x) < 10 else f"{x:.2f}"
     return str(x)
