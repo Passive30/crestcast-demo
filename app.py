@@ -52,6 +52,20 @@ def max_drawdown(r):
     peak = cumulative.cummax()
     drawdown = (cumulative - peak) / peak
     return drawdown.min()
+def ulcer_index(returns):
+    if returns.empty:
+        return np.nan
+    cumulative = (1 + returns).cumprod()
+    peak = cumulative.cummax()
+    drawdown = (cumulative - peak) / peak
+    squared_dd = drawdown ** 2
+    return np.sqrt(squared_dd.mean())
+
+def ulcer_ratio(port, bench):
+    ui = ulcer_index(port)
+    ar = annualized_return(port)
+    return ar / ui if ui != 0 else np.nan
+    
 def cumulative_return(series): return (1 + series).cumprod()
 def tracking_error(port, bench):
     try:
@@ -244,7 +258,7 @@ metrics = [
     "Annualized Return", "Annualized Std Dev", 
     "Beta vs Benchmark", "Alpha vs Benchmark", 
     "Sharpe Ratio", "Tracking Error", "Information Ratio",
-    "Max Drawdown", "Up Capture", "Down Capture", 
+    "Max Drawdown", "Ulcer Index", "Ulcer Ratio", "Up Capture", "Down Capture", 
     "Return Outperformance"
 ]
 
@@ -260,6 +274,8 @@ crestcast_metrics = [
     tracking_error(blended_crestcast, benchmark),
     information_ratio(blended_crestcast, benchmark),  # <-- new
     max_drawdown(blended_crestcast),
+    ulcer_index(blended_crestcast),
+    ulcer_ratio(blended_crestcast),
     up_capture(blended_crestcast, benchmark),
     down_capture(blended_crestcast, benchmark),
     return_diff(blended_crestcast, benchmark)
@@ -274,6 +290,8 @@ benchmark_metrics = [
     None,  # <-- Tracking Error placeholder
     None,  # <-- Information Ratio
     max_drawdown(benchmark),
+    ulcer_index(benchmark),
+    ulcer_ratio(benchmark),
     1.0, 1.0, 0.0
 ]
 
