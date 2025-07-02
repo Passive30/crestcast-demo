@@ -289,7 +289,7 @@ benchmark_metrics = [
     None,  # <-- Tracking Error placeholder
     None,  # <-- Information Ratio
     max_drawdown(benchmark),
-    None, 
+    ulcer_ratio(benchmark, benchmark),  # We compare benchmark vs. itself
     1.0, 1.0, 0.0
 ]
 
