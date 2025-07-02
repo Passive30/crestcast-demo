@@ -258,8 +258,7 @@ metrics = [
     "Annualized Return", "Annualized Std Dev", 
     "Beta vs Benchmark", "Alpha vs Benchmark", 
     "Sharpe Ratio", "Tracking Error", "Information Ratio",
-    "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture", 
-    "Return Outperformance"
+    "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture"
 ]
 
 
@@ -276,8 +275,7 @@ crestcast_metrics = [
     max_drawdown(blended_crestcast),
     ulcer_ratio(blended_crestcast, benchmark),
     up_capture(blended_crestcast, benchmark),
-    down_capture(blended_crestcast, benchmark),
-    return_diff(blended_crestcast, benchmark)
+    down_capture(blended_crestcast, benchmark)
 ]
 
 
@@ -290,7 +288,7 @@ benchmark_metrics = [
     None,  # <-- Information Ratio
     max_drawdown(benchmark),
     ulcer_ratio(benchmark, benchmark),  # We compare benchmark vs. itself
-    1.0, 1.0, 0.0
+    1.0, 1.0
 ]
 
 
