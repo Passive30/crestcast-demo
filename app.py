@@ -186,7 +186,7 @@ filtered_returns = returns_df.loc[start_date:end_date]
 
 # --- Extract Data for Chart + Stats ---
 benchmark = filtered_returns[preferred_index]
-gross_crestcast = filtered_returns['P:1529191']
+gross_crestcast = filtered_returns["CrestCast"]
 net_crestcast = gross_crestcast - monthly_fee
 
 valid_data = pd.concat([benchmark, net_crestcast], axis=1).dropna()
@@ -322,9 +322,6 @@ for i in range(len(metrics)):
 
 summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
-# === Define Return Series ===
-net_crestcast = returns_df["^CCMATR"] - monthly_fee
-benchmark = returns_df["Benchmark"]
 
 # === Rolling 10-Year Alpha Chart ===
 st.subheader("📉 Rolling 10-Year Beta-Adjusted Alpha vs. Benchmark")
