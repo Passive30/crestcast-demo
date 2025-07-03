@@ -323,7 +323,7 @@ for i in range(len(metrics)):
 summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 # === Define Return Series ===
-net_crestcast = returns_df["CrestCast"]
+net_crestcast = returns_df["^CCMATR"] - monthly_fee
 benchmark = returns_df["Benchmark"]
 
 # === Rolling 10-Year Alpha Chart ===
