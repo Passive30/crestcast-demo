@@ -325,22 +325,24 @@ st.table(summary_df)
 # === Rolling 10-Year Outperformance Chart ===
 st.subheader("📉 Rolling 10-Year Annualized Outperformance vs. Benchmark")
 
+# === Rolling 10-Year Alpha Chart ===
+st.subheader("📉 Rolling 10-Year Annualized Alpha")
+
 # Calculate rolling 10-year (120 months) annualized alpha
 rolling_alpha = alpha.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/10) - 1)
 rolling_alpha = rolling_alpha.dropna()
 
-rel_perf = crest_rolling_ann - bench_rolling_ann
-rel_perf = rel_perf.dropna()
-
+# Plot the rolling alpha directly
 fig, ax = plt.subplots(figsize=(10, 4))
-colors = ["green" if val >= 0 else "red" for val in rel_perf]
-ax.bar(rel_perf.index, rel_perf.values, color=colors, width=20)
+colors = ["green" if val >= 0 else "red" for val in rolling_alpha]
+ax.bar(rolling_alpha.index, rolling_alpha.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 10-Year Alpha vs. Benchmark")
-ax.set_ylabel("CrestCast Alpha")
+ax.set_title("Rolling 10-Year Alpha (Annualized)")
+ax.set_ylabel("Annualized Alpha")
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
 st.pyplot(fig)
+
 
 st.caption(
     "Each bar represents CrestCast’s outperformance or underperformance over the prior 10 years. "
