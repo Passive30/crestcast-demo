@@ -326,41 +326,43 @@ st.table(summary_df)
 net_crestcast = returns_df["CrestCast"]
 benchmark = returns_df["Benchmark"]
 
-# === Calculate Rolling Beta ===
-rolling_beta = (
-    net_crestcast.rolling(window=120)
-    .cov(benchmark)
-    / benchmark.rolling(window=120).var()
-)
+# === Rolling 10-Year Alpha Chart ===
+st.subheader("📉 Rolling 10-Year Beta-Adjusted Alpha vs. Benchmark")
 
-# === Compute Monthly Jensen Alpha Series ===
-monthly_jensen_alpha = net_crestcast - (rolling_beta * benchmark)
+rolling_window = 120
+rolling_alpha = []
 
-# === Compute Rolling 10-Year Annualized Jensen Alpha ===
-rolling_jensen_alpha = monthly_jensen_alpha.rolling(window=120).apply(
-    lambda r: (1 + r).prod()**(1/10) - 1
-)
-rolling_jensen_alpha = rolling_jensen_alpha.dropna()
+for i in range(rolling_window, len(net_crestcast)):
+    port = net_crestcast.iloc[i - rolling_window:i]
+    bench = benchmark.iloc[i - rolling_window:i]
 
-# === Plot Jensen Alpha ===
-st.subheader("📉 Rolling 10-Year Jensen Alpha (Annualized)")
+    if port.isnull().any() or bench.isnull().any():
+        rolling_alpha.append(np.nan)
+        continue
 
+    # Beta and Alpha using your existing formula
+    df = pd.concat([port, bench], axis=1).dropna()
+    beta, alpha = beta_alpha(df.iloc[:, 0], df.iloc[:, 1])
+    rolling_alpha.append(alpha)
+
+# Align with date index
+alpha_series = pd.Series(rolling_alpha, index=net_crestcast.index[rolling_window:])
+
+# Plot
 fig, ax = plt.subplots(figsize=(10, 4))
-colors = ["green" if val >= 0 else "red" for val in rolling_jensen_alpha]
-ax.bar(rolling_jensen_alpha.index, rolling_jensen_alpha.values, color=colors, width=20)
+colors = ["green" if val >= 0 else "red" for val in alpha_series]
+ax.bar(alpha_series.index, alpha_series.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 10-Year Jensen Alpha (Beta-Adjusted)")
-ax.set_ylabel("Annualized Alpha")
+ax.set_title("Rolling 10-Year Beta-Adjusted Alpha vs. Benchmark")
+ax.set_ylabel("Alpha (Annualized)")
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
 st.pyplot(fig)
 
-
 st.caption(
-    "Each bar represents CrestCast’s outperformance or underperformance over the prior 10 years. "
-    "Green bars indicate periods of relative outperformance; red bars indicate relative lag."
+    "Each bar represents CrestCast’s beta-adjusted alpha over the prior 10 years. "
+    "Green bars indicate positive alpha; red bars indicate negative alpha relative to beta exposure."
 )
-
 
 # === Rolling 10-Year Information Ratio with Drawdown Overlay ===
 st.subheader("📈 Rolling 5-Year Information Ratio vs. Drawdown")
