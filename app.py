@@ -391,31 +391,31 @@ if not ulcer_series.empty:
     dd_crest_aligned = dd_crest.loc[ulcer_series.index]
     dd_bench_aligned = dd_bench.loc[ulcer_series.index]
 
-fig, ax1 = plt.subplots(figsize=(10, 5))
-
-ax1.plot(ulcer_series.index, ulcer_series.values, label="Rolling 5-Year Ulcer Index", color="#1f77b4", linewidth=2)
-ax1.axhline(2.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 2.0")
-ax1.set_ylabel("Ulcer Index", fontsize=10, color="#1f77b4")
-ax1.set_ylim(0.5, 2.5)  # ✅ Explicit Y-axis range
-ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
-ax1.grid(True, linestyle="--", alpha=0.3)
-
-# Add secondary drawdown axis
-ax2 = ax1.twinx()
-ax2.fill_between(dd_crest_aligned.index, dd_crest_aligned.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
-ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
-ax2.set_ylabel("Drawdown", fontsize=10, color="gray")
-ax2.set_ylim(-0.6, 0.05)
-ax2.tick_params(axis='y', labelcolor="gray", labelsize=9)
-
-# Combine legends
-lines_1, labels_1 = ax1.get_legend_handles_labels()
-lines_2, labels_2 = ax2.get_legend_handles_labels()
-ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=2, frameon=False)
-
-fig.tight_layout()
-st.pyplot(fig)
-
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+    
+    ax1.plot(ulcer_series.index, ulcer_series.values, label="Rolling 5-Year Ulcer Index", color="#1f77b4", linewidth=2)
+    ax1.axhline(2.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 2.0")
+    ax1.set_ylabel("Ulcer Index", fontsize=10, color="#1f77b4")
+    ax1.set_ylim(0.5, 2.5)  # ✅ Explicit Y-axis range
+    ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
+    ax1.grid(True, linestyle="--", alpha=0.3)
+    
+    # Add secondary drawdown axis
+    ax2 = ax1.twinx()
+    ax2.fill_between(dd_crest_aligned.index, dd_crest_aligned.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
+    ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
+    ax2.set_ylabel("Drawdown", fontsize=10, color="gray")
+    ax2.set_ylim(-0.6, 0.05)
+    ax2.tick_params(axis='y', labelcolor="gray", labelsize=9)
+    
+    # Combine legends
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=2, frameon=False)
+    
+    fig.tight_layout()
+    st.pyplot(fig)
+    
 
     st.caption(
         "**Interpretation:** This chart displays CrestCast’s rolling 5-year Ulcer Index — a measure of drawdown persistence and severity. "
