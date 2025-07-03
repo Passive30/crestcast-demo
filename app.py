@@ -361,56 +361,42 @@ st.caption(
     "Green bars indicate positive alpha; red bars indicate negative alpha relative to beta exposure."
 )
 
-# === Rolling 10-Year Information Ratio with Drawdown Overlay ===
-st.subheader("📈 Rolling 5-Year Information Ratio vs. Drawdown")
+# === Rolling 5-Year Ulcer Index with Drawdown Overlay ===
+st.subheader("📉 Rolling 5-Year Ulcer Index vs. Drawdown")
 
 valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
 blended_crestcast = valid_data.iloc[:, 0]
 benchmark = valid_data.iloc[:, 1]
 
 rolling_window = 60
-ir_values = []
+ulcer_values = []
 dates = []
 
 for i in range(rolling_window, len(blended_crestcast)):
     port = blended_crestcast.iloc[i - rolling_window:i]
-    bench = benchmark.iloc[i - rolling_window:i]
-
-    if port.isnull().any() or bench.isnull().any():
-        ir_values.append(np.nan)
+    if port.isnull().any():
+        ulcer_values.append(np.nan)
         continue
-
-    x = bench.values
-    y = port.values
-    x_mean = np.mean(x)
-    y_mean = np.mean(y)
-    beta = np.cov(x, y)[0, 1] / np.var(x)
-    alpha = y_mean - beta * x_mean
-    residuals = y - (alpha + beta * x)
-    tracking_err = np.std(residuals) * np.sqrt(12)
-    annual_alpha = alpha * 12
-    ir = annual_alpha / tracking_err if tracking_err != 0 else np.nan
-
-    ir_values.append(ir)
+    ui = ulcer_index(port)
+    ulcer_values.append(ui)
     dates.append(port.index[-1])
 
-ir_series = pd.Series(ir_values, index=dates).dropna()
+ulcer_series = pd.Series(ulcer_values, index=dates).dropna()
 
-if not ir_series.empty:
+if not ulcer_series.empty:
     cumulative_crest = (1 + blended_crestcast).cumprod()
     cumulative_bench = (1 + benchmark).cumprod()
     dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
     dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
-    dd_crest_aligned = dd_crest.loc[ir_series.index]
-    dd_bench_aligned = dd_bench.loc[ir_series.index]
+    dd_crest_aligned = dd_crest.loc[ulcer_series.index]
+    dd_bench_aligned = dd_bench.loc[ulcer_series.index]
 
     fig, ax1 = plt.subplots(figsize=(10, 5))
 
-    ax1.plot(ir_series.index, ir_series.values, label="Rolling 10-Year IR", color="#1f77b4", linewidth=2)
-    ax1.axhline(0.5, color="red", linestyle="--", linewidth=1.2, label="IR = 0.5 threshold")
-    ax1.set_ylabel("Information Ratio", fontsize=10, color="#1f77b4")
-    ax1.set_ylim(-0.5, 1.75)
-    ax1.yaxis.set_major_locator(ticker.MaxNLocator(6))
+    ax1.plot(ulcer_series.index, ulcer_series.values, label="Rolling 5-Year Ulcer Index", color="#1f77b4", linewidth=2)
+    ax1.axhline(2.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 2.0")
+    ax1.set_ylabel("Ulcer Index", fontsize=10, color="#1f77b4")
+    ax1.set_ylim(0, 5)
     ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
     ax1.grid(True, linestyle="--", alpha=0.3)
 
@@ -429,12 +415,12 @@ if not ir_series.empty:
     st.pyplot(fig)
 
     st.caption(
-        "**Interpretation:** This chart shows CrestCast's rolling 10-year Information Ratio alongside drawdowns. "
-        "Periods of macro stress often cause IR to compress temporarily, but CrestCast’s capital preservation reduces drawdown severity. "
-        "This is what enables long-term, risk-adjusted alpha to persist over full cycles."
+        "**Interpretation:** This chart displays CrestCast’s rolling 5-year Ulcer Index — a measure of drawdown persistence and severity. "
+        "Lower values reflect smoother equity curves. Overlaying benchmark and CrestCast drawdowns reveals CrestCast’s superior downside profile."
     )
 else:
-    st.warning("Not enough clean data to calculate rolling IR or drawdowns.")
+    st.warning("Not enough clean data to calculate rolling Ulcer Index or drawdowns.")
+
     
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
