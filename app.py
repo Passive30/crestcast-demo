@@ -396,7 +396,7 @@ if not ulcer_series.empty:
     ax1.plot(ulcer_series.index, ulcer_series.values, label="Rolling 5-Year Ulcer Index", color="#1f77b4", linewidth=2)
     ax1.axhline(2.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 2.0")
     ax1.set_ylabel("Ulcer Index", fontsize=10, color="#1f77b4")
-    ax1.set_ylim(0, 5)
+    ax1.set_ylim(0.5, 2.5)
     ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
     ax1.grid(True, linestyle="--", alpha=0.3)
 
