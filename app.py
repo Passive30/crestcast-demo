@@ -325,8 +325,8 @@ st.table(summary_df)
 # === Rolling 10-Year Outperformance Chart ===
 st.subheader("📉 Rolling 10-Year Annualized Outperformance vs. Benchmark")
 
-crest_rolling_ann = net_crestcast.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
-bench_rolling_ann = benchmark.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+crest_rolling_ann = net_crestcast.rolling(window=60).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+bench_rolling_ann = benchmark.rolling(window=60).apply(lambda r: (1 + r).prod()**(1/3) - 1)
 
 rel_perf = crest_rolling_ann - bench_rolling_ann
 rel_perf = rel_perf.dropna()
@@ -348,13 +348,13 @@ st.caption(
 
 
 # === Rolling 10-Year Information Ratio with Drawdown Overlay ===
-st.subheader("📈 Rolling 10-Year Information Ratio vs. Drawdown")
+st.subheader("📈 Rolling 5-Year Information Ratio vs. Drawdown")
 
 valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
 blended_crestcast = valid_data.iloc[:, 0]
 benchmark = valid_data.iloc[:, 1]
 
-rolling_window = 120
+rolling_window = 60
 ir_values = []
 dates = []
 
