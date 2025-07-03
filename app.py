@@ -322,22 +322,34 @@ for i in range(len(metrics)):
 
 summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
-# === Rolling 10-Year Outperformance Chart ===
-st.subheader("📉 Rolling 10-Year Annualized Outperformance vs. Benchmark")
+# === Define Return Series ===
+net_crestcast = returns_df["CrestCast"]
+benchmark = returns_df["Benchmark"]
 
-# === Rolling 10-Year Alpha Chart ===
-st.subheader("📉 Rolling 10-Year Annualized Alpha")
+# === Calculate Rolling Beta ===
+rolling_beta = (
+    net_crestcast.rolling(window=120)
+    .cov(benchmark)
+    / benchmark.rolling(window=120).var()
+)
 
-# Calculate rolling 10-year (120 months) annualized alpha
-rolling_alpha = alpha.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/10) - 1)
-rolling_alpha = rolling_alpha.dropna()
+# === Compute Monthly Jensen Alpha Series ===
+monthly_jensen_alpha = net_crestcast - (rolling_beta * benchmark)
 
-# Plot the rolling alpha directly
+# === Compute Rolling 10-Year Annualized Jensen Alpha ===
+rolling_jensen_alpha = monthly_jensen_alpha.rolling(window=120).apply(
+    lambda r: (1 + r).prod()**(1/10) - 1
+)
+rolling_jensen_alpha = rolling_jensen_alpha.dropna()
+
+# === Plot Jensen Alpha ===
+st.subheader("📉 Rolling 10-Year Jensen Alpha (Annualized)")
+
 fig, ax = plt.subplots(figsize=(10, 4))
-colors = ["green" if val >= 0 else "red" for val in rolling_alpha]
-ax.bar(rolling_alpha.index, rolling_alpha.values, color=colors, width=20)
+colors = ["green" if val >= 0 else "red" for val in rolling_jensen_alpha]
+ax.bar(rolling_jensen_alpha.index, rolling_jensen_alpha.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 10-Year Alpha (Annualized)")
+ax.set_title("Rolling 10-Year Jensen Alpha (Beta-Adjusted)")
 ax.set_ylabel("Annualized Alpha")
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
