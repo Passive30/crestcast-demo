@@ -116,7 +116,7 @@ account_type = "Individual"
 # === Section 2: Select Base Index ===
 st.header("2. Select Core Index for Overlay")
 index_options = {
-    "Russell 3000": "^RUATR", "S&P 500": "^SPXTR"
+    "Russell 3000": "^RUATR"
     
 }
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
