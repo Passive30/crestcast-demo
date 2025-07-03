@@ -115,12 +115,15 @@ account_type = "Individual"
 
 # === Section 2: Select Base Index ===
 st.header("2. Select Core Index for Overlay")
+
 index_options = {
-    "Russell 3000 (IWV)": "IWV"
-    
+    "Russell 3000 (IWV)": "^RUATR",
+    "S&P 500 (SPY)": "^SPXTR"  # Add this line
 }
+
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
 preferred_index = index_options[selected_label]
+
 
 # === Section 3: Activate Overlay Logic ===
 st.header("3. Activate Macro-Aware Overlay")
