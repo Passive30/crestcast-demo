@@ -116,7 +116,7 @@ account_type = "Individual"
 # === Section 2: Select Base Index ===
 st.header("2. Select Core Index for Overlay")
 index_options = {
-    "Russell 3000 (IWV)": "IWV"
+    "Russell 3000": "^RUATR", "S&P 500": "^SPXTR"
     
 }
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
@@ -131,7 +131,7 @@ if macro_aware:
     st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
 
     # Overlay Fee Dropdown
-    fee_bps = st.selectbox("Overlay Fee (basis points))", [0, 20, 35, 50], index=0)
+    fee_bps = st.selectbox("Overlay Fee (basis points))", [0, 20, 35, 50, .75], index=0)
     annual_fee = fee_bps / 10000
     monthly_fee = annual_fee / 12
 
@@ -183,7 +183,7 @@ filtered_returns = returns_df.loc[start_date:end_date]
 
 # --- Extract Data for Chart + Stats ---
 benchmark = filtered_returns[preferred_index]
-gross_crestcast = filtered_returns['P:1529191']
+gross_crestcast = filtered_returns['^CCMATR']
 net_crestcast = gross_crestcast - monthly_fee
 
 valid_data = pd.concat([benchmark, net_crestcast], axis=1).dropna()
