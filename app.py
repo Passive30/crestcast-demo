@@ -325,8 +325,9 @@ st.table(summary_df)
 # === Rolling 10-Year Outperformance Chart ===
 st.subheader("📉 Rolling 10-Year Annualized Outperformance vs. Benchmark")
 
-crest_rolling_ann = net_crestcast.rolling(window=60).apply(lambda r: (1 + r).prod()**(1/3) - 1)
-bench_rolling_ann = benchmark.rolling(window=60).apply(lambda r: (1 + r).prod()**(1/3) - 1)
+# Calculate rolling 10-year (120 months) annualized alpha
+rolling_alpha = alpha.rolling(window=120).apply(lambda r: (1 + r).prod()**(1/10) - 1)
+rolling_alpha = rolling_alpha.dropna()
 
 rel_perf = crest_rolling_ann - bench_rolling_ann
 rel_perf = rel_perf.dropna()
@@ -335,8 +336,8 @@ fig, ax = plt.subplots(figsize=(10, 4))
 colors = ["green" if val >= 0 else "red" for val in rel_perf]
 ax.bar(rel_perf.index, rel_perf.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 10-Year Outperformance vs. Benchmark")
-ax.set_ylabel("CrestCast – Benchmark (Annualized Return)")
+ax.set_title("Rolling 10-Year Alpha vs. Benchmark")
+ax.set_ylabel("CrestCast Alpha")
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
 st.pyplot(fig)
