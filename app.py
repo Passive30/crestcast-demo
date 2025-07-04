@@ -399,7 +399,7 @@ if not ulcer_ratio_series.empty:
     ax1.plot(ulcer_ratio_series.index, ulcer_ratio_series.values, label="Rolling 10-Year Ulcer Ratio", color="#1f77b4", linewidth=2)
     ax1.axhline(1.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 1.0")
     ax1.set_ylabel("Ulcer Ratio", fontsize=10, color="#1f77b4")
-    ax1.set_ylim(0.0, 5.0)  # Adjust as needed
+    ax1.set_ylim(0.0, 7.0)  # Adjust as needed
     ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
     ax1.grid(True, linestyle="--", alpha=0.3)
     
