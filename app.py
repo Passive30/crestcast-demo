@@ -117,8 +117,8 @@ account_type = "Individual"
 st.header("2. Select Core Index for Overlay")
 
 index_options = {
-    "Russell 3000 (IWV)": "^RUATR",
-    "S&P 500 (SPY)": "^SPXTR"  # Add this line
+    "Russell 3000 Index": "^RUATR",
+    "R3000 ETF (IWV)": "IWV"  # Add this line
 }
 
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
