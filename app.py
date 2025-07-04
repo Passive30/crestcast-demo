@@ -361,14 +361,15 @@ st.caption(
     "Green bars indicate positive alpha; red bars indicate negative alpha relative to beta exposure."
 )
 
-# === Rolling 5-Year Ulcer Ratio with Drawdown Overlay ===
-st.subheader("📉 Rolling 5-Year Ulcer Ratio vs. Drawdown")
+# === Rolling 10-Year Ulcer Ratio with Drawdown Overlay ===
+st.subheader("📉 Rolling 10-Year Ulcer Ratio vs. Drawdown")
 
 valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
 blended_crestcast = valid_data.iloc[:, 0]
 benchmark = valid_data.iloc[:, 1]
 
-rolling_window = 60
+rolling_window = 120  # 10 years
+
 ulcer_ratio_values = []
 dates = []
 
@@ -395,10 +396,10 @@ if not ulcer_ratio_series.empty:
 
     fig, ax1 = plt.subplots(figsize=(10, 5))
     
-    ax1.plot(ulcer_ratio_series.index, ulcer_ratio_series.values, label="Rolling 5-Year Ulcer Ratio", color="#1f77b4", linewidth=2)
+    ax1.plot(ulcer_ratio_series.index, ulcer_ratio_series.values, label="Rolling 10-Year Ulcer Ratio", color="#1f77b4", linewidth=2)
     ax1.axhline(1.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 1.0")
     ax1.set_ylabel("Ulcer Ratio", fontsize=10, color="#1f77b4")
-    ax1.set_ylim(0.0, .5)  # Adjust if needed
+    ax1.set_ylim(0.0, 3.0)  # Adjust as needed
     ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
     ax1.grid(True, linestyle="--", alpha=0.3)
     
@@ -419,8 +420,9 @@ if not ulcer_ratio_series.empty:
     st.pyplot(fig)
 
     st.caption(
-        "**Interpretation:** This chart displays CrestCast’s rolling 5-year Ulcer Ratio — a measure of return per unit of drawdown severity. "
-        "Higher values reflect superior risk-adjusted returns with smoother equity paths. Drawdown overlays provide visual confirmation of downside resilience."
+        "**Interpretation:** This chart displays CrestCast’s rolling 10-year Ulcer Ratio — a measure of return per unit of downside volatility. "
+        "Higher values indicate smoother compounding paths and better risk-adjusted performance over long horizons. "
+        "Drawdown overlays show the consistency of capital preservation alongside return."
     )
 else:
     st.warning("Not enough clean data to calculate rolling Ulcer Ratio or drawdowns.")
