@@ -399,23 +399,6 @@ for i in range(rolling_window, len(blended_crestcast)):
 
 ulcer_ratio_series = pd.Series(ulcer_ratio_values, index=dates).dropna()
 
-# Combine Ulcer Ratio and drawdown into a single DataFrame
-ulcer_df = pd.DataFrame({
-    "Date": ulcer_ratio_series.index,
-    "Ulcer Ratio": ulcer_ratio_series.values,
-    "CrestCast Drawdown": dd_crest_aligned.values,
-    "Benchmark Drawdown": dd_bench_aligned.values
-})
-
-# Download button
-csv_ulcer = ulcer_df.to_csv(index=False).encode("utf-8")
-st.download_button(
-    label="⬇️ Download Ulcer Ratio and Drawdown Data",
-    data=csv_ulcer,
-    file_name="ulcer_ratio_drawdown.csv",
-    mime="text/csv"
-)
-
 
 if not ulcer_ratio_series.empty:
     cumulative_crest = (1 + blended_crestcast).cumprod()
@@ -458,6 +441,22 @@ if not ulcer_ratio_series.empty:
 else:
     st.warning("Not enough clean data to calculate rolling Ulcer Ratio or drawdowns.")
 
+# Combine Ulcer Ratio and drawdown into a single DataFrame
+ulcer_df = pd.DataFrame({
+    "Date": ulcer_ratio_series.index,
+    "Ulcer Ratio": ulcer_ratio_series.values,
+    "CrestCast Drawdown": dd_crest_aligned.values,
+    "Benchmark Drawdown": dd_bench_aligned.values
+})
+
+# Download button
+csv_ulcer = ulcer_df.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Ulcer Ratio and Drawdown Data",
+    data=csv_ulcer,
+    file_name="ulcer_ratio_drawdown.csv",
+    mime="text/csv"
+)
 
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
