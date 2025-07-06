@@ -324,9 +324,9 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
 # === Rolling 10-Year Alpha Chart ===
-st.subheader("📉 Rolling 10-Year Beta-Adjusted Alpha vs. Benchmark")
+st.subheader("📉 Rolling 5-Year Alpha vs. Benchmark")
 
-rolling_window = 12
+rolling_window = 60
 rolling_alpha = []
 
 for i in range(rolling_window, len(net_crestcast)):
@@ -350,15 +350,15 @@ fig, ax = plt.subplots(figsize=(10, 4))
 colors = ["green" if val >= 0 else "red" for val in alpha_series]
 ax.bar(alpha_series.index, alpha_series.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 10-Year Beta-Adjusted Alpha vs. Benchmark")
+ax.set_title("Rolling 5-Year Alpha vs. Benchmark")
 ax.set_ylabel("Alpha (Annualized)")
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
 st.pyplot(fig)
 
 st.caption(
-    "Each bar represents CrestCast’s beta-adjusted alpha over the prior 10 years. "
-    "Green bars indicate positive alpha; red bars indicate negative alpha relative to beta exposure."
+    "Each bar represents CrestCast’s alpha over the prior 5 years. "
+    "Green bars indicate positive alpha; red bars indicate negative performance relative to beta exposure."
 )
 
 # === Rolling 10-Year Ulcer Ratio with Drawdown Overlay ===
