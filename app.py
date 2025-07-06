@@ -345,6 +345,19 @@ for i in range(rolling_window, len(net_crestcast)):
 # Align with date index
 alpha_series = pd.Series(rolling_alpha, index=net_crestcast.index[rolling_window:])
 
+# Prepare alpha data for download
+alpha_df = alpha_series.reset_index()
+alpha_df.columns = ["Date", "Rolling 5Y Alpha"]
+
+# Download button
+csv_alpha = alpha_df.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Rolling 5-Year Alpha Data",
+    data=csv_alpha,
+    file_name="rolling_5y_alpha.csv",
+    mime="text/csv"
+)
+
 # Plot
 fig, ax = plt.subplots(figsize=(10, 4))
 colors = ["green" if val >= 0 else "red" for val in alpha_series]
@@ -385,6 +398,24 @@ for i in range(rolling_window, len(blended_crestcast)):
     dates.append(port.index[-1])
 
 ulcer_ratio_series = pd.Series(ulcer_ratio_values, index=dates).dropna()
+
+# Combine Ulcer Ratio and drawdown into a single DataFrame
+ulcer_df = pd.DataFrame({
+    "Date": ulcer_ratio_series.index,
+    "Ulcer Ratio": ulcer_ratio_series.values,
+    "CrestCast Drawdown": dd_crest_aligned.values,
+    "Benchmark Drawdown": dd_bench_aligned.values
+})
+
+# Download button
+csv_ulcer = ulcer_df.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Ulcer Ratio and Drawdown Data",
+    data=csv_ulcer,
+    file_name="ulcer_ratio_drawdown.csv",
+    mime="text/csv"
+)
+
 
 if not ulcer_ratio_series.empty:
     cumulative_crest = (1 + blended_crestcast).cumprod()
