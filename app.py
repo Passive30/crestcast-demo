@@ -94,9 +94,9 @@ def information_ratio(port, bench):
 
 # === Intro and Branding ===
 st.markdown("""
-# Passive 3.0™ Macro Overlay  
-### Direct Indexing Demonstration | Powered by Intervallum Technologies
-This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhance a core index using regime-aware factor rotation.
+# Introducing CrestCast™ Macro-Aware US Factor Rotation Index 
+### Detailed Analytics Demonstration | Powered by Intervallum Technologies
+This demo illustrates how the CrestCast™ index can dynamically enhance core equity exposure using regime-aware factor rotation.
 """)
 
 # === Section 1: Simulation Parameters ===
@@ -556,25 +556,3 @@ st.download_button(
     file_name="metrics_by_period.csv",
     mime="text/csv"
 )
-
-# --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
-st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
-
-tax_aware = st.checkbox("Enable Tax-Aware Overlay")
-
-# Hard-coded for demo: only exclude tobacco
-value_screens = ["Exclude Tobacco"]
-st.markdown("🛡️ Value Screens Applied: **Exclude Tobacco**")
-
-
-# --- Section 7: Summary Recap ---
-st.header("7. Summary")
-st.write(f"**Client:** {client_name if client_name else '—'}")
-st.write(f"**Account Type:** {account_type}")
-st.write(f"**Preferred Index:** {preferred_index}")
-st.write(f"**Overlay Fee:** {fee_bps} bps")
-st.write(f"**Macro-Aware Overlay:** {'Enabled' if macro_aware else 'Disabled'}")
-if macro_aware:
-    st.write(f"**Tracking Error Target:** {tracking_error_label_choice}")
-st.write(f"**Tax-Aware Overlay:** {'Enabled' if tax_aware else 'Disabled'}")
-st.write(f"**Value Screens:** {', '.join(value_screens) if value_screens else 'None'}")
