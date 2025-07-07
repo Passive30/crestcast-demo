@@ -557,9 +557,9 @@ st.download_button(
     mime="text/csv"
 )
 
-st.markdown("### 🚀 Let’s Talk")
+st.markdown("### Let’s Talk")
 st.markdown(
-    "_Whether you're building ETFs, models, or personalized portfolios, CrestCast can power it. "
-    "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit._"
+    "_Whether you're building ETFs, models, or personalized portfolios, CrestCast™ can power your solution. "
+    "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
 )
 
