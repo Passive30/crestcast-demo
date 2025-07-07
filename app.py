@@ -102,11 +102,10 @@ This demo illustrates how the Passive 3.0™ macro overlay can dynamically enhan
 # === Section 1: Simulation Parameters ===
 st.header("1. Simulation Setup")
 st.info(
-    "This demo is preconfigured to highlight the full power of the CrestCast™ Macro-Aware U.S. Factor Rotation Index. "
-    "The results shown reflect a hypothetical full implementation of the index overlay, using simple ETF rotation logic until the live index becomes available. "
-    "Prior to 2014, the index is estimated using French Factor Data. "
-    "A value screen to exclude tobacco is applied by default to demonstrate personalization potential. "
-    "The overlay fee is adjustable below, starting at 0 basis points."
+"This demo is preconfigured to highlight the full power of the CrestCast™ Macro-Aware U.S. Factor Rotation Index."
+"Results from August 1, 2025, onward reflect live index data. From 2001 through July 2025, the index is based on strict" 
+"out-of-sample implementation using a walk-forward validated model. Factor tilts are applied by our calculation agent based"
+"on analytics derived exclusively from the training period—ensuring no forward-looking bias is introduced into the model."
 )
 
 client_name = "CC Demo"
