@@ -480,69 +480,82 @@ if show_dd_chart:
         mime="text/csv"
     )
 
-    # === Periods to Evaluate ===
-    from datetime import timedelta
-    
-    today = blended_crestcast.index[-1]
-    periods = {
-        "1 Year": today - pd.DateOffset(years=1),
-        "5 Year": today - pd.DateOffset(years=5),
-        "10 Year": today - pd.DateOffset(years=10),
-        "Since Inception": blended_crestcast.index[0]
-    }
-    
-    # === Metric Table ===
-    summary_rows = []
-    
+# === Metric-First Performance Table ===
+st.subheader("📊 CrestCast vs. Benchmark: Metrics by Period")
+
+# Periods to evaluate
+today = blended_crestcast.index[-1]
+periods = {
+    "1 Year": today - pd.DateOffset(years=1),
+    "5 Year": today - pd.DateOffset(years=5),
+    "10 Year": today - pd.DateOffset(years=10),
+    "Since Inception": blended_crestcast.index[0]
+}
+
+# Metrics to compute
+metrics = {
+    "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
+    "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
+    "Beta": lambda p, b: beta_alpha(p, b)[0],
+    "Alpha": lambda p, b: beta_alpha(p, b)[1],
+    "Sharpe Ratio": lambda p, b: (sharpe_ratio(p), sharpe_ratio(b)),
+    "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
+    "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
+    "Tracking Error": lambda p, b: tracking_error(p, b),
+    "Information Ratio": lambda p, b: information_ratio(p, b),
+}
+
+# Storage: {metric -> {period -> value}}
+results = {}
+
+for metric_name, func in metrics.items():
+    crestcast_values = {}
+    benchmark_values = {}
+
     for label, start_date in periods.items():
         port = blended_crestcast.loc[start_date:]
         bench = benchmark.loc[start_date:]
-    
-        # Ensure alignment
+
         df = pd.concat([port, bench], axis=1).dropna()
         if df.empty:
+            crestcast_values[label] = np.nan
+            benchmark_values[label] = np.nan
             continue
-    
+
         port = df.iloc[:, 0]
         bench = df.iloc[:, 1]
-    
-        ann_return = annualized_return(port)
-        ann_std = annualized_std(port)
-        beta, alpha = beta_alpha(port, bench)
-        sharpe = sharpe_ratio(port)
-        mdd = max_drawdown(port)
-        ulcer = ulcer_ratio(port, bench)
-        te = tracking_error(port, bench)
-        ir = information_ratio(port, bench)
-    
-        summary_rows.append({
-            "Period": label,
-            "Ann. Return": ann_return,
-            "Ann. Std Dev": ann_std,
-            "Beta": beta,
-            "Alpha": alpha,
-            "Sharpe Ratio": sharpe,
-            "Max Drawdown": mdd,
-            "Ulcer Ratio": ulcer,
-            "Tracking Error": te,
-            "Information Ratio": ir
-        })
-    
-    summary_df = pd.DataFrame(summary_rows).set_index("Period")
-    summary_df = summary_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
-    
-    # === Display Table
-    st.subheader("📊 CrestCast vs. Benchmark: Summary Metrics")
-    st.dataframe(summary_df)
-    
-    # === Download Button
-    csv_metrics = summary_df.reset_index().to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="⬇️ Download Performance Summary",
-        data=csv_metrics,
-        file_name="crestcast_performance_summary.csv",
-        mime="text/csv"
-    )
+
+        result = func(port, bench)
+
+        if isinstance(result, tuple):
+            crestcast_values[label] = result[0]
+            benchmark_values[label] = result[1]
+        else:
+            crestcast_values[label] = result
+            benchmark_values[label] = np.nan  # Only CrestCast result, e.g., TE, IR
+
+    results[f"CrestCast: {metric_name}"] = crestcast_values
+    if any(v is not np.nan for v in benchmark_values.values()):
+        results[f"Benchmark: {metric_name}"] = benchmark_values
+
+# Create DataFrame
+summary_df = pd.DataFrame(results).T
+summary_df = summary_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Order columns
+formatted_df = summary_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
+
+# Display
+st.dataframe(formatted_df)
+
+# Download
+csv_download = summary_df.reset_index().rename(columns={"index": "Metric"})
+csv_bytes = csv_download.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Metric Summary by Period",
+    data=csv_bytes,
+    file_name="metrics_by_period.csv",
+    mime="text/csv"
+)
+
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
 
