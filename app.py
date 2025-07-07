@@ -556,3 +556,10 @@ st.download_button(
     file_name="metrics_by_period.csv",
     mime="text/csv"
 )
+
+st.markdown("### 🚀 Let’s Talk")
+st.markdown(
+    "_Whether you're building ETFs, models, or personalized portfolios, CrestCast can power it. "
+    "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit._"
+)
+
