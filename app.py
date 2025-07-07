@@ -113,7 +113,7 @@ st.markdown(f"**Demo Label:** {client_name}")
 account_type = "Individual"
 
 # === Section 2: Select Base Index ===
-st.header("2. Select Core Index for Overlay")
+st.header("2. Select Benchmark for Comparison")
 
 index_options = {
     "Russell 3000 Index": "^RUATR",
@@ -125,12 +125,12 @@ preferred_index = index_options[selected_label]
 
 
 # === Section 3: Activate Overlay Logic ===
-st.header("3. Activate Macro-Aware Overlay")
+st.header("3. Activate Macro-Aware Index")
 macro_aware = True
 
 
 if macro_aware:
-    st.markdown("This overlay helps your portfolio respond to changing economic conditions using advanced analytics. Learn More.")
+    st.markdown("The CrestCast™ index can serve as an overlay to empower dynamic shifts to style allocations in an underlying index.")
 
     # Overlay Fee Dropdown
     fee_bps = st.selectbox("Overlay Fee (basis points))", [0, 20, 35, 50], index=0)
@@ -152,7 +152,7 @@ if macro_aware:
 
 
     # Optional Email Opt-In
-    email_opt_in = st.checkbox("📬 Please send me an email with monthly commentary on regime outlook and implications for my portfolio.")
+#    email_opt_in = st.checkbox("📬 Please send me an email with monthly commentary on regime outlook and implications for my portfolio.")
 
 else:
     # If macro overlay is off, set safe defaults
