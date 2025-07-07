@@ -459,11 +459,11 @@ st.download_button(
 )
 
 # === Rolling 36-Month Max Drawdown ===
-st.subheader("📉 Optional: Rolling 36-Month Max Drawdown")
+st.subheader("📉 Optional: Rolling 5-Year Max Drawdown")
 show_dd_chart = st.checkbox("Show Rolling Max Drawdown Chart (36-Month Window)")
 
 if show_dd_chart:
-    rolling_window = 36  # 36-month window
+    rolling_window = 60  # 36-month window
     rolling_dd_crest = []
     rolling_dd_bench = []
     dates = []
@@ -496,7 +496,7 @@ if show_dd_chart:
     fig, ax = plt.subplots(figsize=(10, 4))
     ax.plot(rolling_dd_df.index, rolling_dd_df["CrestCast Max Drawdown"], label="CrestCast", color="green", linewidth=2)
     ax.plot(rolling_dd_df.index, rolling_dd_df["Benchmark Max Drawdown"], label="Benchmark", color="red", linestyle="--", linewidth=2)
-    ax.set_title("Rolling 36-Month Maximum Drawdown")
+    ax.set_title("Rolling 5-Year Maximum Drawdown")
     ax.set_ylabel("Max Drawdown")
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
     ax.grid(True, linestyle="--", alpha=0.3)
@@ -511,9 +511,9 @@ if show_dd_chart:
     # Add Download Button
     csv_dd = rolling_dd_df.reset_index().to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="⬇️ Download 36-Month Max Drawdown Data",
+        label="⬇️ Download 5-Year Max Drawdown Data",
         data=csv_dd,
-        file_name="rolling_36m_max_drawdown.csv",
+        file_name="rolling_5y_max_drawdown.csv",
         mime="text/csv"
     )
 
