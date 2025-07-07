@@ -504,8 +504,8 @@ if show_dd_chart:
     st.pyplot(fig)
 
     st.caption(
-        "This chart tracks the worst drawdown experienced in any 3-year window. "
-        "Lower drawdowns over time suggest stronger capital preservation and a smoother investor experience."
+        "Each point shows the steepest drawdown experienced in the preceding  5 years. Flat sections reflect periods where past drawdowns lingered,"
+        "highlighting both the depth and persistence of capital stress. CrestCast’s smoother stair-steps show fewer and shallower multi-year drawdowns compared to the benchmark."
     )
 
     # Add Download Button
