@@ -503,6 +503,8 @@ metrics = {
     "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
     "Tracking Error": lambda p, b: tracking_error(p, b),
     "Information Ratio": lambda p, b: information_ratio(p, b),
+    "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
+    "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
 }
 
 # Storage: {metric -> {period -> value}}
