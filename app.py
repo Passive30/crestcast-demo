@@ -458,6 +458,66 @@ st.download_button(
     mime="text/csv"
 )
 
+# === Rolling 36-Month Max Drawdown ===
+st.subheader("📉 Optional: Rolling 36-Month Max Drawdown")
+show_dd_chart = st.checkbox("Show Rolling Max Drawdown Chart (36-Month Window)")
+
+if show_dd_chart:
+    rolling_window = 36  # 36-month window
+    rolling_dd_crest = []
+    rolling_dd_bench = []
+    dates = []
+
+    for i in range(rolling_window, len(blended_crestcast)):
+        window_crest = blended_crestcast.iloc[i - rolling_window:i]
+        window_bench = benchmark.iloc[i - rolling_window:i]
+
+        if window_crest.isnull().any() or window_bench.isnull().any():
+            continue
+
+        cum_crest = (1 + window_crest).cumprod()
+        cum_bench = (1 + window_bench).cumprod()
+
+        dd_crest = (cum_crest / cum_crest.cummax()) - 1
+        dd_bench = (cum_bench / cum_bench.cummax()) - 1
+
+        rolling_dd_crest.append(dd_crest.min())  # max drawdown = most negative value
+        rolling_dd_bench.append(dd_bench.min())
+        dates.append(window_crest.index[-1])
+
+    # Create DataFrame
+    rolling_dd_df = pd.DataFrame({
+        "Date": dates,
+        "CrestCast Max Drawdown": rolling_dd_crest,
+        "Benchmark Max Drawdown": rolling_dd_bench
+    }).set_index("Date")
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(rolling_dd_df.index, rolling_dd_df["CrestCast Max Drawdown"], label="CrestCast", color="green", linewidth=2)
+    ax.plot(rolling_dd_df.index, rolling_dd_df["Benchmark Max Drawdown"], label="Benchmark", color="red", linestyle="--", linewidth=2)
+    ax.set_title("Rolling 36-Month Maximum Drawdown")
+    ax.set_ylabel("Max Drawdown")
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.legend()
+    st.pyplot(fig)
+
+    st.caption(
+        "This chart tracks the worst drawdown experienced in any 3-year window. "
+        "Lower drawdowns over time suggest stronger capital preservation and a smoother investor experience."
+    )
+
+    # Add Download Button
+    csv_dd = rolling_dd_df.reset_index().to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="⬇️ Download 36-Month Max Drawdown Data",
+        data=csv_dd,
+        file_name="rolling_36m_max_drawdown.csv",
+        mime="text/csv"
+    )
+
+
 # --- Section 6: Implementation Add-Ons (Non-Performance Adjusted) ---
 st.header("6. Implementation Add-Ons (Non-Performance Adjusted)")
 
