@@ -374,89 +374,51 @@ st.caption(
     "Green bars indicate positive alpha; red bars indicate negative performance relative to beta exposure."
 )
 
-# === Rolling 10-Year Ulcer Ratio with Drawdown Overlay ===
-st.subheader("📉 Rolling 10-Year Ulcer Ratio vs. Drawdown")
+# === Full-Period Drawdown Comparison ===
+st.subheader("📉 Full-Period Drawdown: CrestCast vs. Benchmark")
 
+# Align data and calculate drawdowns
 valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
 blended_crestcast = valid_data.iloc[:, 0]
 benchmark = valid_data.iloc[:, 1]
 
-rolling_window = 120  # 10 years
+cumulative_crest = (1 + blended_crestcast).cumprod()
+cumulative_bench = (1 + benchmark).cumprod()
 
-ulcer_ratio_values = []
-dates = []
+dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
+dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
 
-for i in range(rolling_window, len(blended_crestcast)):
-    port = blended_crestcast.iloc[i - rolling_window:i]
-    if port.isnull().any():
-        ulcer_ratio_values.append(np.nan)
-        continue
-    ui = ulcer_index(port)
-    ar = annualized_return(port)
-    ur = ar / ui if ui and ui != 0 else np.nan
-    ulcer_ratio_values.append(ur)
-    dates.append(port.index[-1])
+# Plot
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.fill_between(dd_crest.index, dd_crest.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
+ax.plot(dd_bench.index, dd_bench.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
+ax.set_ylabel("Drawdown")
+ax.set_title("Full-Period Drawdown: CrestCast vs. Benchmark")
+ax.set_ylim(-0.6, 0.05)
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+ax.grid(True, linestyle="--", alpha=0.3)
+ax.legend(loc="lower left")
+st.pyplot(fig)
 
-ulcer_ratio_series = pd.Series(ulcer_ratio_values, index=dates).dropna()
-
-
-if not ulcer_ratio_series.empty:
-    cumulative_crest = (1 + blended_crestcast).cumprod()
-    cumulative_bench = (1 + benchmark).cumprod()
-    dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
-    dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
-    dd_crest_aligned = dd_crest.loc[ulcer_ratio_series.index]
-    dd_bench_aligned = dd_bench.loc[ulcer_ratio_series.index]
-
-    fig, ax1 = plt.subplots(figsize=(10, 5))
-    
-    ax1.plot(ulcer_ratio_series.index, ulcer_ratio_series.values, label="Rolling 10-Year Ulcer Ratio", color="#1f77b4", linewidth=2)
-    ax1.axhline(1.0, color="red", linestyle="--", linewidth=1.2, label="Threshold = 1.0")
-    ax1.set_ylabel("Ulcer Ratio", fontsize=10, color="#1f77b4")
-    ax1.set_ylim(0.0, 7.0)  # Adjust as needed
-    ax1.tick_params(axis='y', labelcolor="#1f77b4", labelsize=9)
-    ax1.grid(True, linestyle="--", alpha=0.3)
-    
-    # Add secondary drawdown axis
-    ax2 = ax1.twinx()
-    ax2.fill_between(dd_crest_aligned.index, dd_crest_aligned.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
-    ax2.plot(dd_bench_aligned.index, dd_bench_aligned.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
-    ax2.set_ylabel("Drawdown", fontsize=10, color="gray")
-    ax2.set_ylim(-0.6, 0.05)
-    ax2.tick_params(axis='y', labelcolor="gray", labelsize=9)
-    
-    # Combine legends
-    lines_1, labels_1 = ax1.get_legend_handles_labels()
-    lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=2, frameon=False)
-    
-    fig.tight_layout()
-    st.pyplot(fig)
-
-    st.caption(
-        "**Interpretation:** This chart displays CrestCast’s rolling 10-year Ulcer Ratio — a measure of return per unit of downside volatility. "
-        "Higher values indicate smoother compounding paths and better risk-adjusted performance over long horizons. "
-        "Drawdown overlays show the consistency of capital preservation alongside return."
-    )
-else:
-    st.warning("Not enough clean data to calculate rolling Ulcer Ratio or drawdowns.")
-
-# Combine Ulcer Ratio and drawdown into a single DataFrame
-ulcer_df = pd.DataFrame({
-    "Date": ulcer_ratio_series.index,
-    "Ulcer Ratio": ulcer_ratio_series.values,
-    "CrestCast Drawdown": dd_crest_aligned.values,
-    "Benchmark Drawdown": dd_bench_aligned.values
-})
+st.caption(
+    "**Interpretation:** This chart shows the historical drawdowns of CrestCast and the benchmark across the full sample period. "
+    "It highlights the depth and duration of capital declines, offering a clear comparison of downside experience across time."
+)
 
 # Download button
-csv_ulcer = ulcer_df.to_csv(index=False).encode("utf-8")
+drawdown_df = pd.DataFrame({
+    "Date": dd_crest.index,
+    "CrestCast Drawdown": dd_crest.values,
+    "Benchmark Drawdown": dd_bench.values
+})
+csv_drawdown = drawdown_df.to_csv(index=False).encode("utf-8")
 st.download_button(
-    label="⬇️ Download Ulcer Ratio and Drawdown Data",
-    data=csv_ulcer,
-    file_name="ulcer_ratio_drawdown.csv",
+    label="⬇️ Download Full-Period Drawdown Data",
+    data=csv_drawdown,
+    file_name="full_period_drawdowns.csv",
     mime="text/csv"
 )
+
 
 # === Rolling 36-Month Max Drawdown ===
 st.subheader("📉 Optional: Rolling 5-Year Max Drawdown")
