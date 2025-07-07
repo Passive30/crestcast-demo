@@ -162,6 +162,71 @@ else:
     tracking_error = "Not applicable"
     lam = 0.0
     email_opt_in = False
+
+# === Periods to Evaluate ===
+from datetime import timedelta
+
+today = blended_crestcast.index[-1]
+periods = {
+    "1 Year": today - pd.DateOffset(years=1),
+    "5 Year": today - pd.DateOffset(years=5),
+    "10 Year": today - pd.DateOffset(years=10),
+    "Since Inception": blended_crestcast.index[0]
+}
+
+# === Metric Table ===
+summary_rows = []
+
+for label, start_date in periods.items():
+    port = blended_crestcast.loc[start_date:]
+    bench = benchmark.loc[start_date:]
+
+    # Ensure alignment
+    df = pd.concat([port, bench], axis=1).dropna()
+    if df.empty:
+        continue
+
+    port = df.iloc[:, 0]
+    bench = df.iloc[:, 1]
+
+    ann_return = annualized_return(port)
+    ann_std = annualized_std(port)
+    beta, alpha = beta_alpha(port, bench)
+    sharpe = sharpe_ratio(port)
+    mdd = max_drawdown(port)
+    ulcer = ulcer_ratio(port, bench)
+    te = tracking_error(port, bench)
+    ir = information_ratio(port, bench)
+
+    summary_rows.append({
+        "Period": label,
+        "Ann. Return": ann_return,
+        "Ann. Std Dev": ann_std,
+        "Beta": beta,
+        "Alpha": alpha,
+        "Sharpe Ratio": sharpe,
+        "Max Drawdown": mdd,
+        "Ulcer Ratio": ulcer,
+        "Tracking Error": te,
+        "Information Ratio": ir
+    })
+
+summary_df = pd.DataFrame(summary_rows).set_index("Period")
+summary_df = summary_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
+
+# === Display Table
+st.subheader("📊 CrestCast vs. Benchmark: Summary Metrics")
+st.dataframe(summary_df)
+
+# === Download Button
+csv_metrics = summary_df.reset_index().to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Performance Summary",
+    data=csv_metrics,
+    file_name="crestcast_performance_summary.csv",
+    mime="text/csv"
+)
+
 # --- Section 4: Select Time Period ---
 st.header("4. Select Time Period for Analysis")
 
