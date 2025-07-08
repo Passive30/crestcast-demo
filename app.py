@@ -607,7 +607,7 @@ if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
 
 
 
-rolling_window = 120  # 10 years
+rolling_window = 60  # 10 years
 crest_sharpes = []
 bench_sharpes = []
 dates = []
