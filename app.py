@@ -300,6 +300,10 @@ def down_capture(port, bench):
 def return_diff(port, bench):
     return annualized_return(port) - annualized_return(bench)
 
+# Rename series before using beta_alpha
+named_crestcast = blended_crestcast.rename("CrestCast")
+named_benchmark = benchmark.rename("Benchmark")
+
 # Metrics to display
 metrics = [
     "Annualized Return", "Annualized Std Dev", 
@@ -308,36 +312,32 @@ metrics = [
     "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture"
 ]
 
-
-
-
-# CrestCast metrics
+# CrestCast metrics (labeled for beta_alpha to work)
 crestcast_metrics = [
-    annualized_return(blended_crestcast),
-    annualized_std(blended_crestcast),
-    *beta_alpha(blended_crestcast, benchmark),
-    sharpe_ratio(blended_crestcast),
-    tracking_error(blended_crestcast, benchmark),
-    information_ratio(blended_crestcast, benchmark),  # <-- new
-    max_drawdown(blended_crestcast),
-    ulcer_ratio(blended_crestcast, benchmark),
-    up_capture(blended_crestcast, benchmark),
-    down_capture(blended_crestcast, benchmark)
+    annualized_return(named_crestcast),
+    annualized_std(named_crestcast),
+    *beta_alpha(named_crestcast, named_benchmark),
+    sharpe_ratio(named_crestcast),
+    tracking_error(named_crestcast, named_benchmark),
+    information_ratio(named_crestcast, named_benchmark),
+    max_drawdown(named_crestcast),
+    ulcer_ratio(named_crestcast, named_benchmark),
+    up_capture(named_crestcast, named_benchmark),
+    down_capture(named_crestcast, named_benchmark)
 ]
 
-
+# Benchmark metrics
 benchmark_metrics = [
-    annualized_return(benchmark),
-    annualized_std(benchmark),
+    annualized_return(named_benchmark),
+    annualized_std(named_benchmark),
     None, None,
-    sharpe_ratio(benchmark),
-    None,  # <-- Tracking Error placeholder
-    None,  # <-- Information Ratio
-    max_drawdown(benchmark),
-    ulcer_ratio(benchmark, benchmark),  # We compare benchmark vs. itself
+    sharpe_ratio(named_benchmark),
+    None,  # Tracking Error placeholder
+    None,  # Information Ratio
+    max_drawdown(named_benchmark),
+    ulcer_ratio(named_benchmark, named_benchmark),
     1.0, 1.0
 ]
-
 
 
 # Format function with metric context
@@ -374,16 +374,14 @@ rolling_window = 120
 rolling_alpha = []
 
 for i in range(rolling_window, len(net_crestcast)):
-    port = net_crestcast.iloc[i - rolling_window:i]
-    bench = benchmark.iloc[i - rolling_window:i]
+    port = net_crestcast.iloc[i - rolling_window:i].rename("CrestCast")
+    bench = benchmark.iloc[i - rolling_window:i].rename("Benchmark")
 
     if port.isnull().any() or bench.isnull().any():
         rolling_alpha.append(np.nan)
         continue
 
-    # Beta and Alpha using your existing formula
-    df = pd.concat([port, bench], axis=1).dropna()
-    beta, alpha = beta_alpha(df.iloc[:, 0], df.iloc[:, 1])
+    beta, alpha = beta_alpha(port, bench)
     rolling_alpha.append(alpha)
 
 # Align with date index
@@ -391,14 +389,14 @@ alpha_series = pd.Series(rolling_alpha, index=net_crestcast.index[rolling_window
 
 # Prepare alpha data for download
 alpha_df = alpha_series.reset_index()
-alpha_df.columns = ["Date", "Rolling 5Y Alpha"]
+alpha_df.columns = ["Date", "Rolling 10Y Alpha"]
 
 # Download button
 csv_alpha = alpha_df.to_csv(index=False).encode("utf-8")
 st.download_button(
-    label="⬇️ Download Rolling 5-Year Alpha Data",
+    label="⬇️ Download Rolling 10-Year Alpha Data",
     data=csv_alpha,
-    file_name="rolling_5y_alpha.csv",
+    file_name="rolling_10y_alpha.csv",
     mime="text/csv"
 )
 
@@ -407,16 +405,17 @@ fig, ax = plt.subplots(figsize=(10, 4))
 colors = ["green" if val >= 0 else "red" for val in alpha_series]
 ax.bar(alpha_series.index, alpha_series.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 5-Year Alpha vs. Benchmark")
+ax.set_title("Rolling 10-Year Alpha vs. Benchmark")
 ax.set_ylabel("Alpha (Annualized)")
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
 st.pyplot(fig)
 
 st.caption(
-    "Each bar represents CrestCast’s alpha over the prior 5 years. "
+    "Each bar represents CrestCast’s alpha over the prior 10 years. "
     "Green bars indicate positive alpha; red bars indicate negative performance relative to beta exposure."
 )
+
 
 # === Full-Period Drawdown Comparison ===
 st.subheader("📉 Full-Period Drawdown: CrestCast vs. Benchmark")
@@ -464,64 +463,6 @@ st.download_button(
 )
 
 
-# === Rolling 120-Month Max Drawdown ===
-st.subheader("📉 Optional: Rolling 10-Year Max Drawdown")
-show_dd_chart = st.checkbox("Show Rolling Max Drawdown Chart (120-Month Window)")
-
-if show_dd_chart:
-    rolling_window = 120  # 60-month window
-    rolling_dd_crest = []
-    rolling_dd_bench = []
-    dates = []
-
-    for i in range(rolling_window, len(blended_crestcast)):
-        window_crest = blended_crestcast.iloc[i - rolling_window:i]
-        window_bench = benchmark.iloc[i - rolling_window:i]
-
-        if window_crest.isnull().any() or window_bench.isnull().any():
-            continue
-
-        cum_crest = (1 + window_crest).cumprod()
-        cum_bench = (1 + window_bench).cumprod()
-
-        dd_crest = (cum_crest / cum_crest.cummax()) - 1
-        dd_bench = (cum_bench / cum_bench.cummax()) - 1
-
-        rolling_dd_crest.append(dd_crest.min())  # max drawdown = most negative value
-        rolling_dd_bench.append(dd_bench.min())
-        dates.append(window_crest.index[-1])
-
-    # Create DataFrame
-    rolling_dd_df = pd.DataFrame({
-        "Date": dates,
-        "CrestCast Max Drawdown": rolling_dd_crest,
-        "Benchmark Max Drawdown": rolling_dd_bench
-    }).set_index("Date")
-
-    # Plot
-    fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(rolling_dd_df.index, rolling_dd_df["CrestCast Max Drawdown"], label="CrestCast", color="green", linewidth=2)
-    ax.plot(rolling_dd_df.index, rolling_dd_df["Benchmark Max Drawdown"], label="Benchmark", color="red", linestyle="--", linewidth=2)
-    ax.set_title("Rolling 5-Year Maximum Drawdown")
-    ax.set_ylabel("Max Drawdown")
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-    ax.grid(True, linestyle="--", alpha=0.3)
-    ax.legend()
-    st.pyplot(fig)
-
-    st.caption(
-        "Each point shows the steepest drawdown experienced in the preceding  10 years. Flat sections reflect periods where past drawdowns lingered,"
-        "highlighting both the depth and persistence of capital stress. CrestCast’s smoother stair-steps show fewer and shallower multi-year drawdowns compared to the benchmark."
-    )
-
-    # Add Download Button
-    csv_dd = rolling_dd_df.reset_index().to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="⬇️ Download 10-Year Max Drawdown Data",
-        data=csv_dd,
-        file_name="rolling_10y_max_drawdown.csv",
-        mime="text/csv"
-    )
 
 # === Metric-First Performance Table ===
 st.subheader("📊 CrestCast vs. Benchmark: Metrics by Period")
@@ -558,8 +499,9 @@ for metric_name, func in metrics.items():
     benchmark_values = {}
 
     for label, start_date in periods.items():
-        port = blended_crestcast.loc[start_date:]
-        bench = benchmark.loc[start_date:]
+        # Slice the data
+        port = blended_crestcast.loc[start_date:].rename("CrestCast")
+        bench = benchmark.loc[start_date:].rename("Benchmark")
 
         df = pd.concat([port, bench], axis=1).dropna()
         if df.empty:
@@ -567,10 +509,8 @@ for metric_name, func in metrics.items():
             benchmark_values[label] = np.nan
             continue
 
-        port = df.iloc[:, 0]
-        bench = df.iloc[:, 1]
-
-        result = func(port, bench)
+        # Ensure consistent naming
+        result = func(df["CrestCast"], df["Benchmark"])
 
         if isinstance(result, tuple):
             crestcast_values[label] = result[0]
@@ -601,17 +541,18 @@ st.download_button(
     mime="text/csv"
 )
 
+
 # --- Optional Section: Rolling 5-Year Alpha Summary ---
 st.markdown("### 📈 Optional: Rolling 10-Year Alpha Analysis")
 
 if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
 
-    rolling_window = 120  # 60 months = 5 years
+    rolling_window = 120  # 120 months = 10 years
     alpha_values = []
 
     for i in range(rolling_window, len(returns_df)):
-        port = returns_df.iloc[i - rolling_window:i, 0]  # CrestCast
-        bench = returns_df.iloc[i - rolling_window:i, 1]  # Benchmark
+        port = returns_df.iloc[i - rolling_window:i, 0].rename("CrestCast")
+        bench = returns_df.iloc[i - rolling_window:i, 1].rename("Benchmark")
 
         if port.isnull().any() or bench.isnull().any():
             continue
@@ -624,11 +565,10 @@ if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
     if alpha_series.empty:
         st.warning("Not enough data to calculate rolling 10-year alpha.")
     else:
-        # Summary stats
         percent_positive = (alpha_series > 0).mean()
         average_alpha = alpha_series.mean()
 
-        st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
+        st.markdown(f"- **Percent of 10-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
         st.markdown(f"- **Average Annualized Alpha (10-Year Windows)**: **{average_alpha:.2%}**")
 
         # Histogram
