@@ -542,29 +542,39 @@ st.download_button(
 )
 
 
-# --- Optional Section: Rolling 5-Year Alpha Summary ---
+# --- Optional Section: Rolling 10-Year Alpha Summary ---
 st.markdown("### 📈 Optional: Rolling 10-Year Alpha Analysis")
 
 if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
 
-    rolling_window = 120  # 120 months = 10 years
+    rolling_window = 120  # 10 years
     alpha_values = []
+    alpha_dates = []
 
     for i in range(rolling_window, len(returns_df)):
-        port = returns_df.iloc[i - rolling_window:i, 0].rename("CrestCast")
-        bench = returns_df.iloc[i - rolling_window:i, 1].rename("Benchmark")
+        window = returns_df.iloc[i - rolling_window:i]
+
+        # Use named columns directly — no iloc for series
+        if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
+            st.error("Missing required columns: 'CrestCast' and 'Benchmark'")
+            st.stop()
+
+        port = window["CrestCast"].rename("CrestCast")
+        bench = window["Benchmark"].rename("Benchmark")
 
         if port.isnull().any() or bench.isnull().any():
             continue
 
         _, alpha = beta_alpha(port, bench)
         alpha_values.append(alpha)
+        alpha_dates.append(window.index[-1])
 
-    alpha_series = pd.Series(alpha_values)
+    alpha_series = pd.Series(alpha_values, index=alpha_dates)
 
     if alpha_series.empty:
         st.warning("Not enough data to calculate rolling 10-year alpha.")
     else:
+        # Summary stats
         percent_positive = (alpha_series > 0).mean()
         average_alpha = alpha_series.mean()
 
@@ -578,6 +588,17 @@ if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
         ax.set_xlabel("Annualized Alpha")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
+
+        # Optional: bar chart preview (match visual)
+        fig2, ax2 = plt.subplots(figsize=(10, 4))
+        ax2.bar(alpha_series.index, alpha_series.values, color="green", width=20)
+        ax2.axhline(0, color="gray", linestyle="--", linewidth=1)
+        ax2.set_title("Rolling 10-Year Alpha vs. Benchmark")
+        ax2.set_ylabel("Alpha (Annualized)")
+        ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+        ax2.grid(True, linestyle="--", alpha=0.3)
+        st.pyplot(fig2)
+
 
 rolling_window = 120
 crest_sharpes = []
