@@ -99,7 +99,7 @@ def information_ratio(port, bench):
 
 # === Intro and Branding ===
 st.markdown("""
-## Introducing CrestCast™ Macro-Aware US Factor Rotation Index 
+## Introducing CrestCast™ Macro-Aware US Factor Rotation Index (DRAFT)
 ### Detailed Analytics Demonstration
 This demo illustrates how the CrestCast™ index can dynamically enhance core equity exposure using regime-aware factor rotation.
 """)
