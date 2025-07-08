@@ -553,7 +553,7 @@ st.markdown("### 📈 Optional: Rolling 10-Year Alpha Analysis")
 
 if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
 
-    rolling_window = 120  # 10 years
+    rolling_window = 60  # 10 years
     alpha_values = []
     alpha_dates = []
 
