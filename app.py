@@ -630,7 +630,7 @@ with cols[2]:
         value="97% Alpha ⬆",
         delta="Sharpe higher in 78% of periods"
     )
-st.markdown("— *Powered by CrestCast™*")
+
 st.markdown("---")
 
 st.markdown("### ☎️ Let's Talk")
@@ -638,4 +638,4 @@ st.markdown(
     "#### _Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
     "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
 )
-
+st.markdown("— *Powered by CrestCast™*")
