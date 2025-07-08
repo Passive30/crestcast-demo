@@ -632,6 +632,7 @@ with cols[2]:
     )
 
 st.markdown("---")
+st.markdown("— *Powered by CrestCast™*")
 st.markdown("### ☎️ Let's Talk")
 st.markdown(
     "#### _Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
