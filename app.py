@@ -278,9 +278,11 @@ else:
 
 comparison_df = comparison_df.dropna()
 
+st.markdown("## 📍 Main Results")
+
 # Plot full-width with matplotlib
 if not comparison_df.empty:
-    fig, ax = plt.subplots(figsize=(12, 4))
+    fig, ax = plt.subplots(figsize=(6, 3))
     for col in comparison_df.columns:
         ax.plot(comparison_df.index, comparison_df[col], label=col)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
@@ -376,56 +378,6 @@ for i in range(len(metrics)):
 summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
-# === Rolling 10-Year Alpha Chart ===
-st.subheader("📉 Rolling 10-Year Alpha vs. Benchmark")
-
-rolling_window = 120
-rolling_alpha = []
-
-for i in range(rolling_window, len(net_crestcast)):
-    port = net_crestcast.iloc[i - rolling_window:i].rename("CrestCast")
-    bench = benchmark.iloc[i - rolling_window:i].rename("Benchmark")
-
-    if port.isnull().any() or bench.isnull().any():
-        rolling_alpha.append(np.nan)
-        continue
-
-    beta, alpha = beta_alpha(port, bench)
-    rolling_alpha.append(alpha)
-
-# Align with date index
-alpha_series = pd.Series(rolling_alpha, index=net_crestcast.index[rolling_window:])
-
-# Prepare alpha data for download
-alpha_df = alpha_series.reset_index()
-alpha_df.columns = ["Date", "Rolling 10Y Alpha"]
-
-# Download button
-csv_alpha = alpha_df.to_csv(index=False).encode("utf-8")
-st.download_button(
-    label="⬇️ Download Rolling 10-Year Alpha Data",
-    data=csv_alpha,
-    file_name="rolling_10y_alpha.csv",
-    mime="text/csv"
-)
-
-# Plot
-fig, ax = plt.subplots(figsize=(7.5, 3))
-colors = ["green" if val >= 0 else "red" for val in alpha_series]
-ax.bar(alpha_series.index, alpha_series.values, color=colors, width=20)
-ax.axhline(0, color="gray", linestyle="--", linewidth=1)
-ax.set_title("Rolling 10-Year Alpha vs. Benchmark")
-ax.set_ylabel("Alpha (Annualized)")
-ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-ax.grid(True, linestyle="--", alpha=0.3)
-st.pyplot(fig)
-
-st.caption(
-    "Each bar represents CrestCast’s alpha over the prior 10 years. "
-    "Green bars indicate positive alpha; red bars indicate negative performance relative to beta exposure."
-)
-
-
 # === Full-Period Drawdown Comparison ===
 st.subheader("📉 Full-Period Drawdown: CrestCast vs. Benchmark")
 
@@ -441,7 +393,7 @@ dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
 dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
 
 # Plot
-fig, ax = plt.subplots(figsize=(10, 5))
+fig, ax = plt.subplots(figsize=(6, 3))
 ax.fill_between(dd_crest.index, dd_crest.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
 ax.plot(dd_bench.index, dd_bench.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
 ax.set_ylabel("Drawdown")
@@ -550,6 +502,7 @@ st.download_button(
     mime="text/csv"
 )
 
+st.markdown("## 🔎 Rolling Analysis")
 
 # --- Optional Section: Rolling 10-Year Alpha Summary ---
 st.markdown("### 📈 Optional: Rolling 5-Year Alpha Analysis")
@@ -639,7 +592,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
 
     # Optional chart
-    fig, ax = plt.subplots(figsize=(7.5, 3))  # Smaller footprint
+    fig, ax = plt.subplots(figsize=(6, 3))  # Smaller footprint
     sharpe_df.plot(ax=ax)
     ax.set_title("Rolling 5-Year Sharpe Ratio")
     ax.set_ylabel("Sharpe Ratio")
@@ -650,7 +603,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     sharpe_diff = sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]
     
     # Plot histogram of Sharpe improvements
-    fig, ax = plt.subplots(figsize=(7.5, 3))
+    fig, ax = plt.subplots(figsize=(6, 3))
     sharpe_diff.hist(bins=30, edgecolor="black", ax=ax)
     ax.axvline(0, color="gray", linestyle="--", linewidth=1)
     ax.set_title("Distribution of Sharpe Ratio Improvement (CrestCast - Benchmark)")
