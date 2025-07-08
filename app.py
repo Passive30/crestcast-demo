@@ -646,6 +646,18 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     ax.grid(True, linestyle="--", alpha=0.3)
     st.pyplot(fig)
 
+    # Compute Sharpe improvement series
+    sharpe_diff = sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]
+    
+    # Plot histogram of Sharpe improvements
+    fig, ax = plt.subplots(figsize=(7.5, 3))
+    sharpe_diff.hist(bins=30, edgecolor="black", ax=ax)
+    ax.axvline(0, color="gray", linestyle="--", linewidth=1)
+    ax.set_title("Distribution of Sharpe Ratio Improvement (CrestCast - Benchmark)")
+    ax.set_xlabel("Sharpe Advantage")
+    ax.set_ylabel("Frequency")
+    st.pyplot(fig)
+
 # === Final Summary Stat Row (Always Visible) ===
 st.markdown("---")
 st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
