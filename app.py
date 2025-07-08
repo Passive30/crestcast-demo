@@ -551,9 +551,9 @@ st.download_button(
 # --- Optional Section: Rolling 10-Year Alpha Summary ---
 st.markdown("### 📈 Optional: Rolling 10-Year Alpha Analysis")
 
-if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
+if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
 
-    rolling_window = 60  # 10 years
+    rolling_window = 36  # 10 years
     alpha_values = []
     alpha_dates = []
 
