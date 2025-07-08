@@ -601,7 +601,7 @@ st.markdown("### 📈 Optional: Rolling 3-Year Alpha Analysis")
 
 if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
 
-    rolling_window = 36  # 60 months = 5 years
+    rolling_window = 60  # 60 months = 5 years
     alpha_values = []
 
     for i in range(rolling_window, len(returns_df)):
@@ -633,6 +633,32 @@ if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
         ax.set_xlabel("Annualized Alpha")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
+
+rolling_window = 60
+crest_sharpes = []
+bench_sharpes = []
+
+for i in range(rolling_window, len(returns_df)):
+    port = returns_df.iloc[i - rolling_window:i, 0]
+    bench = returns_df.iloc[i - rolling_window:i, 1]
+
+    if port.isnull().any() or bench.isnull().any():
+        continue
+
+    crest_sharpes.append(sharpe_ratio(port))
+    bench_sharpes.append(sharpe_ratio(bench))
+
+# Compare ratios
+sharpe_df = pd.DataFrame({
+    "CrestCast": crest_sharpes,
+    "Benchmark": bench_sharpes
+})
+percent_better_sharpe = (sharpe_df["CrestCast"] > sharpe_df["Benchmark"]).mean()
+avg_diff = (sharpe_df["CrestCast"] - sharpe_df["Benchmark"]).mean()
+
+st.markdown("### 📈 Rolling 5-Year Sharpe Ratio Comparison")
+st.markdown(f"- **% of 5-Year Periods Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
+st.markdown(f"- **Average Sharpe Ratio Advantage**: **{avg_diff:.2f}**")
 
 st.markdown("### Let’s Talk")
 st.markdown(
