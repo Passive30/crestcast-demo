@@ -410,7 +410,7 @@ st.download_button(
 )
 
 # Plot
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(7.5, 3))
 colors = ["green" if val >= 0 else "red" for val in alpha_series]
 ax.bar(alpha_series.index, alpha_series.values, color=colors, width=20)
 ax.axhline(0, color="gray", linestyle="--", linewidth=1)
@@ -599,7 +599,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         st.pyplot(fig)
 
         # Optional: bar chart preview (match visual)
-        fig2, ax2 = plt.subplots(figsize=(10, 4))
+        fig2, ax2 = plt.subplots(figsize=(7.5, 3))
         ax2.bar(alpha_series.index, alpha_series.values, color="green", width=20)
         ax2.axhline(0, color="gray", linestyle="--", linewidth=1)
         ax2.set_title("Rolling 5-Year Alpha vs. Benchmark")
@@ -649,7 +649,13 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
 
     # Optional chart
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(7.5, 3))  # Smaller footprint
+    sharpe_df.plot(ax=ax)
+    ax.set_title("Rolling 5-Year Sharpe Ratio")
+    ax.set_ylabel("Sharpe Ratio")
+    ax.grid(True, linestyle="--", alpha=0.3)
+    st.pyplot(fig)
+
     sharpe_df.plot(ax=ax)
     ax.set_title("Rolling 5-Year Sharpe Ratio")
     ax.set_ylabel("Sharpe Ratio")
