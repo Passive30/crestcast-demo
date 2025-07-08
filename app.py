@@ -598,16 +598,6 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
 
-        # Optional: bar chart preview (match visual)
-        fig2, ax2 = plt.subplots(figsize=(7.5, 3))
-        ax2.bar(alpha_series.index, alpha_series.values, color="green", width=20)
-        ax2.axhline(0, color="gray", linestyle="--", linewidth=1)
-        ax2.set_title("Rolling 5-Year Alpha vs. Benchmark")
-        ax2.set_ylabel("Alpha (Annualized)")
-        ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-        ax2.grid(True, linestyle="--", alpha=0.3)
-        st.pyplot(fig2)
-
 
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
@@ -650,12 +640,6 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
 
     # Optional chart
     fig, ax = plt.subplots(figsize=(7.5, 3))  # Smaller footprint
-    sharpe_df.plot(ax=ax)
-    ax.set_title("Rolling 5-Year Sharpe Ratio")
-    ax.set_ylabel("Sharpe Ratio")
-    ax.grid(True, linestyle="--", alpha=0.3)
-    st.pyplot(fig)
-
     sharpe_df.plot(ax=ax)
     ax.set_title("Rolling 5-Year Sharpe Ratio")
     ax.set_ylabel("Sharpe Ratio")
