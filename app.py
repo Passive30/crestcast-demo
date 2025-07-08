@@ -167,12 +167,12 @@ st.header("4. Select Time Period for Analysis")
 
 min_date = returns_df.index.min().to_pydatetime().date()
 max_date = returns_df.index.max().to_pydatetime().date()
-min_window = pd.DateOffset(years=3)
+min_window = pd.DateOffset(years=5)
 
 # Mode selector
 analysis_mode = st.radio(
     "Choose Time Frame Mode:",
-    ["Custom Range", "Rolling 3-Year Window"],
+    ["Custom Range", "Rolling 5-Year Window"],
     index=1,
     horizontal=True
 )
@@ -202,13 +202,13 @@ if analysis_mode == "Custom Range":
 
     st.caption(f"Showing performance from **{start_date.date()}** to **{end_date.date()}**")
 
-elif analysis_mode == "Rolling 3-Year Window":
+elif analysis_mode == "Rolling 5-Year Window":
     # Calculate latest valid start
     latest_valid_start = (pd.to_datetime(max_date) - min_window).date()
 
     # Single-point slider
     rolling_start = st.slider(
-        "Select Start Date (3-Year Window)",
+        "Select Start Date (5-Year Window)",
         min_value=min_date,
         max_value=latest_valid_start,
         value=latest_valid_start
