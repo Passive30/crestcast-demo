@@ -187,7 +187,7 @@ start_date, end_date = None, None
 
 if analysis_mode == "Custom Range":
     # Calculate default to enforce minimum range
-    default_start = max(min_date, (max_date - min_window).date())
+    default_start = min_date  # start at full history by default
 
     # Custom range slider
     date_range = st.slider(
@@ -225,12 +225,12 @@ elif analysis_mode == "Rolling 5-Year Window":
     st.caption(f"Showing performance from **{start_date.date()}** to **{end_date.date()}**")
 
 # Slice return data for selected time frame
-filtered_returns = returns_df.loc[start_date:end_date]
+cumulative_returns = returns_df.loc[start_date:end_date]
 
 
 # --- Extract Data for Chart + Stats ---
-benchmark = filtered_returns[preferred_index]
-gross_crestcast = filtered_returns["CrestCast"]
+benchmark = cumulative_returns[preferred_index]
+gross_crestcast = cumulative_returns["CrestCast"]
 net_crestcast = gross_crestcast - monthly_fee
 
 # Create a working returns DataFrame with standardized column names
@@ -283,7 +283,8 @@ if not comparison_df.empty:
     for col in comparison_df.columns:
         ax.plot(comparison_df.index, comparison_df[col], label=col)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-    ax.set_title("Net Total Return Over Selected Period", fontsize=12)
+    title_range = f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+    ax.set_title(f"Net Total Return ({title_range})", fontsize=12)
     ax.set_ylabel("Cumulative Return (%)")
     ax.legend(loc="upper left", fontsize=9)
     ax.grid(True, linestyle="--", alpha=0.3)
@@ -549,11 +550,11 @@ st.download_button(
 
 
 # --- Optional Section: Rolling 10-Year Alpha Summary ---
-st.markdown("### 📈 Optional: Rolling 10-Year Alpha Analysis")
+st.markdown("### 📈 Optional: Rolling 5-Year Alpha Analysis")
 
-if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
+if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
 
-    rolling_window = 36  # 10 years
+    rolling_window = 60  # 5 years
     alpha_values = []
     alpha_dates = []
 
@@ -578,19 +579,19 @@ if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
     alpha_series = pd.Series(alpha_values, index=alpha_dates)
 
     if alpha_series.empty:
-        st.warning("Not enough data to calculate rolling 10-year alpha.")
+        st.warning("Not enough data to calculate rolling 5-year alpha.")
     else:
         # Summary stats
         percent_positive = (alpha_series > 0).mean()
         average_alpha = alpha_series.mean()
 
-        st.markdown(f"- **Percent of 10-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
-        st.markdown(f"- **Average Annualized Alpha (10-Year Windows)**: **{average_alpha:.2%}**")
+        st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
+        st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
 
         # Histogram
         fig, ax = plt.subplots()
         alpha_series.hist(bins=30, edgecolor='black', ax=ax)
-        ax.set_title("Distribution of 10-Year Rolling Alpha")
+        ax.set_title("Distribution of 5-Year Rolling Alpha")
         ax.set_xlabel("Annualized Alpha")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
@@ -599,14 +600,15 @@ if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
         fig2, ax2 = plt.subplots(figsize=(10, 4))
         ax2.bar(alpha_series.index, alpha_series.values, color="green", width=20)
         ax2.axhline(0, color="gray", linestyle="--", linewidth=1)
-        ax2.set_title("Rolling 10-Year Alpha vs. Benchmark")
+        ax2.set_title("Rolling 5-Year Alpha vs. Benchmark")
         ax2.set_ylabel("Alpha (Annualized)")
         ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
         ax2.grid(True, linestyle="--", alpha=0.3)
         st.pyplot(fig2)
 
 
-
+if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
+    # Sharpe stats and chart
 rolling_window = 60  # 10 years
 crest_sharpes = []
 bench_sharpes = []
@@ -640,8 +642,8 @@ sharpe_df = pd.DataFrame({
 percent_better_sharpe = (sharpe_df["CrestCast Sharpe"] > sharpe_df["Benchmark Sharpe"]).mean()
 avg_diff = (sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
 
-st.markdown("### 📈 Rolling 10-Year Sharpe Ratio Comparison")
-st.markdown(f"- **% of 10-Year Windows Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
+st.markdown("### 📈 Rolling 5-Year Sharpe Ratio Comparison")
+st.markdown(f"- **% of 5-Year Windows Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
 st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
 
 # Optional chart
@@ -653,30 +655,31 @@ ax.grid(True, linestyle="--", alpha=0.3)
 st.pyplot(fig)
 
 st.markdown("---")
-st.markdown("### 🔎 Consistent Alpha Across Market Cycles")
+st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
 
 cols = st.columns(3)
 
 with cols[0]:
     st.metric(
-        label="📈 10-Year Rolling Alpha",
-        value="100%",
-        delta="Positive in all periods"
+        label="📈 10-Year Windows",
+        value="100% Alpha ⬆",
+        delta="CrestCast beat benchmark on Sharpe 96% of the time"
     )
 
 with cols[1]:
     st.metric(
-        label="📊 5-Year Rolling Alpha",
-        value="98%",
-        delta="Nearly universal"
+        label="📊 5-Year Windows",
+        value="98% Alpha ⬆",
+        delta="Sharpe higher in 77% of periods"
     )
 
 with cols[2]:
     st.metric(
-        label="📉 3-Year Rolling Alpha",
-        value="97%",
-        delta="Strong short-cycle performance"
+        label="📉 3-Year Windows",
+        value="97% Alpha ⬆",
+        delta="Sharpe higher in 78% of periods"
     )
+
 
 st.markdown("### Let’s Talk")
 st.markdown(
