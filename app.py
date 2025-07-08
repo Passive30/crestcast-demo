@@ -630,9 +630,9 @@ with cols[2]:
         value="97% Alpha ⬆",
         delta="Sharpe higher in 78% of periods"
     )
-
-st.markdown("---")
 st.markdown("— *Powered by CrestCast™*")
+st.markdown("---")
+
 st.markdown("### ☎️ Let's Talk")
 st.markdown(
     "#### _Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
