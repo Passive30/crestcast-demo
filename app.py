@@ -233,6 +233,12 @@ benchmark = filtered_returns[preferred_index]
 gross_crestcast = filtered_returns["CrestCast"]
 net_crestcast = gross_crestcast - monthly_fee
 
+# Create a working returns DataFrame with standardized column names
+returns_df = pd.concat([
+    benchmark.rename("Benchmark"),
+    net_crestcast.rename("CrestCast")
+], axis=1).dropna()
+
 valid_data = pd.concat([benchmark, net_crestcast], axis=1).dropna()
 benchmark = valid_data.iloc[:, 0]
 net_crestcast = valid_data.iloc[:, 1]
