@@ -365,7 +365,7 @@ st.table(summary_df)
 # === Rolling 10-Year Alpha Chart ===
 st.subheader("📉 Rolling 5-Year Alpha vs. Benchmark")
 
-rolling_window = 18
+rolling_window = 60
 rolling_alpha = []
 
 for i in range(rolling_window, len(net_crestcast)):
@@ -596,18 +596,12 @@ st.download_button(
     mime="text/csv"
 )
 
-st.markdown("### Let’s Talk")
-st.markdown(
-    "_Whether you're building ETFs, models, or personalized portfolios, CrestCast™ can power your solution. "
-    "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
-)
-
 # --- Optional Section: Rolling 5-Year Alpha Summary ---
-st.markdown("### 📈 Optional: Rolling 5-Year Alpha Analysis")
+st.markdown("### 📈 Optional: Rolling 3-Year Alpha Analysis")
 
-if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
+if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
 
-    rolling_window = 60  # 60 months = 5 years
+    rolling_window = 36  # 60 months = 5 years
     alpha_values = []
 
     for i in range(rolling_window, len(returns_df)):
@@ -623,7 +617,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
     alpha_series = pd.Series(alpha_values)
 
     if alpha_series.empty:
-        st.warning("Not enough data to calculate rolling 5-year alpha.")
+        st.warning("Not enough data to calculate rolling 3-year alpha.")
     else:
         # Summary stats
         percent_positive = (alpha_series > 0).mean()
@@ -639,3 +633,10 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax.set_xlabel("Annualized Alpha")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
+
+st.markdown("### Let’s Talk")
+st.markdown(
+    "_Whether you're building ETFs, models, or personalized portfolios, CrestCast™ can power your solution. "
+    "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
+)
+
