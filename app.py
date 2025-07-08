@@ -278,8 +278,6 @@ else:
 
 comparison_df = comparison_df.dropna()
 
-st.markdown("## 📍 Main Results")
-
 # Plot full-width with matplotlib
 if not comparison_df.empty:
     fig, ax = plt.subplots(figsize=(6, 3))
