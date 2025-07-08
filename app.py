@@ -609,55 +609,50 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
 
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
-rolling_window = 60  # 10 years
-crest_sharpes = []
-bench_sharpes = []
-dates = []
+    rolling_window = 60  # 5 years
+    crest_sharpes = []
+    bench_sharpes = []
+    dates = []
 
-for i in range(rolling_window, len(returns_df)):
-    window = returns_df.iloc[i - rolling_window:i]
+    for i in range(rolling_window, len(returns_df)):
+        window = returns_df.iloc[i - rolling_window:i]
 
-    # Safe column access
-    if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
-        continue
+        # Safe column access
+        if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
+            continue
 
-    port = window["CrestCast"]
-    bench = window["Benchmark"]
+        port = window["CrestCast"]
+        bench = window["Benchmark"]
 
-    if port.isnull().any() or bench.isnull().any():
-        continue
+        if port.isnull().any() or bench.isnull().any():
+            continue
 
-    crest_sharpes.append(sharpe_ratio(port))
-    bench_sharpes.append(sharpe_ratio(bench))
-    dates.append(window.index[-1])
+        crest_sharpes.append(sharpe_ratio(port))
+        bench_sharpes.append(sharpe_ratio(bench))
+        dates.append(window.index[-1])
 
-# Assemble results
-sharpe_df = pd.DataFrame({
-    "Date": dates,
-    "CrestCast Sharpe": crest_sharpes,
-    "Benchmark Sharpe": bench_sharpes
-}).set_index("Date")
+    # Assemble results
+    sharpe_df = pd.DataFrame({
+        "Date": dates,
+        "CrestCast Sharpe": crest_sharpes,
+        "Benchmark Sharpe": bench_sharpes
+    }).set_index("Date")
 
-# Summary stats
-percent_better_sharpe = (sharpe_df["CrestCast Sharpe"] > sharpe_df["Benchmark Sharpe"]).mean()
-avg_diff = (sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
+    # Summary stats
+    percent_better_sharpe = (sharpe_df["CrestCast Sharpe"] > sharpe_df["Benchmark Sharpe"]).mean()
+    avg_diff = (sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
 
-st.markdown("### 📈 Rolling 5-Year Sharpe Ratio Comparison")
-st.markdown(f"- **% of 5-Year Windows Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
-st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
+    st.markdown("### 📈 Rolling 5-Year Sharpe Ratio Comparison")
+    st.markdown(f"- **% of 5-Year Windows Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
+    st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
 
-# Optional chart
-fig, ax = plt.subplots()
-sharpe_df.plot(ax=ax)
-ax.set_title("Rolling 10-Year Sharpe Ratio")
-ax.set_ylabel("Sharpe Ratio")
-ax.grid(True, linestyle="--", alpha=0.3)
-st.pyplot(fig)
-
-st.markdown("---")
-st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
-
-cols = st.columns(3)
+    # Optional chart
+    fig, ax = plt.subplots()
+    sharpe_df.plot(ax=ax)
+    ax.set_title("Rolling 5-Year Sharpe Ratio")
+    ax.set_ylabel("Sharpe Ratio")
+    ax.grid(True, linestyle="--", alpha=0.3)
+    st.pyplot(fig)
 
 with cols[0]:
     st.metric(
