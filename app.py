@@ -178,9 +178,10 @@ min_window = pd.DateOffset(years=5)
 analysis_mode = st.radio(
     "Choose Time Frame Mode:",
     ["Custom Range", "Rolling 5-Year Window"],
-    index=1,
+    index=0,  # make Custom Range the default
     horizontal=True
 )
+
 
 # Initialize variables
 start_date, end_date = None, None
@@ -293,7 +294,8 @@ else:
     st.warning("Not enough data to plot. Please try a different date range.")
 
 # --- Performance Summary Table ---
-st.subheader("📊 Performance Summary (net of fees)")
+st.subheader(f"📊 Performance Summary (Net of Fees) — {start_date.date()} to {end_date.date()}")
+
 
 # New: Up/down capture & return delta
 def up_capture(port, bench):
