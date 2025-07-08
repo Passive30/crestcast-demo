@@ -423,89 +423,84 @@ st.download_button(
     mime="text/csv"
 )
 
+st.markdown("## 🔎 Advanced Analytics")
 
 
 # === Metric-First Performance Table ===
-st.subheader("📊 CrestCast vs. Benchmark: Metrics by Period")
+if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
+    st.subheader("📊 CrestCast vs. Benchmark: Metrics by Period")
 
-# Periods to evaluate
-today = blended_crestcast.index[-1]
-periods = {
-    "1 Year": today - pd.DateOffset(years=1),
-    "5 Year": today - pd.DateOffset(years=5),
-    "10 Year": today - pd.DateOffset(years=10),
-    "Since Inception": blended_crestcast.index[0]
-}
+    # Periods to evaluate
+    today = blended_crestcast.index[-1]
+    periods = {
+        "1 Year": today - pd.DateOffset(years=1),
+        "5 Year": today - pd.DateOffset(years=5),
+        "10 Year": today - pd.DateOffset(years=10),
+        "Since Inception": blended_crestcast.index[0]
+    }
 
-# Metrics to compute
-metrics = {
-    "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
-    "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
-    "Beta": lambda p, b: beta_alpha(p, b)[0],
-    "Alpha": lambda p, b: beta_alpha(p, b)[1],
-    "Sharpe Ratio": lambda p, b: (sharpe_ratio(p), sharpe_ratio(b)),
-    "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
-    "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
-    "Tracking Error": lambda p, b: tracking_error(p, b),
-    "Information Ratio": lambda p, b: information_ratio(p, b),
-    "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
-    "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
-}
+    # Metrics to compute
+    metrics = {
+        "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
+        "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
+        "Beta": lambda p, b: beta_alpha(p, b)[0],
+        "Alpha": lambda p, b: beta_alpha(p, b)[1],
+        "Sharpe Ratio": lambda p, b: (sharpe_ratio(p), sharpe_ratio(b)),
+        "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
+        "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
+        "Tracking Error": lambda p, b: tracking_error(p, b),
+        "Information Ratio": lambda p, b: information_ratio(p, b),
+        "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
+        "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
+    }
 
-# Storage: {metric -> {period -> value}}
-results = {}
+    # Storage: {metric -> {period -> value}}
+    results = {}
 
-for metric_name, func in metrics.items():
-    crestcast_values = {}
-    benchmark_values = {}
+    for metric_name, func in metrics.items():
+        crestcast_values = {}
+        benchmark_values = {}
 
-    for label, start_date in periods.items():
-        # Slice the data
-        port = blended_crestcast.loc[start_date:].rename("CrestCast")
-        bench = benchmark.loc[start_date:].rename("Benchmark")
+        for label, start_date in periods.items():
+            port = blended_crestcast.loc[start_date:].rename("CrestCast")
+            bench = benchmark.loc[start_date:].rename("Benchmark")
 
-        df = pd.concat([port, bench], axis=1).dropna()
-        if df.empty:
-            crestcast_values[label] = np.nan
-            benchmark_values[label] = np.nan
-            continue
+            df = pd.concat([port, bench], axis=1).dropna()
+            if df.empty:
+                crestcast_values[label] = np.nan
+                benchmark_values[label] = np.nan
+                continue
 
-        # Ensure consistent naming
-        result = func(df["CrestCast"], df["Benchmark"])
+            result = func(df["CrestCast"], df["Benchmark"])
 
-        if isinstance(result, tuple):
-            crestcast_values[label] = result[0]
-            benchmark_values[label] = result[1]
-        else:
-            crestcast_values[label] = result
-            benchmark_values[label] = np.nan  # Only CrestCast result, e.g., TE, IR
+            if isinstance(result, tuple):
+                crestcast_values[label] = result[0]
+                benchmark_values[label] = result[1]
+            else:
+                crestcast_values[label] = result
+                benchmark_values[label] = np.nan
 
-    results[f"CrestCast: {metric_name}"] = crestcast_values
-    if any(v is not np.nan for v in benchmark_values.values()):
-        results[f"Benchmark: {metric_name}"] = benchmark_values
+        results[f"CrestCast: {metric_name}"] = crestcast_values
+        if any(v is not np.nan for v in benchmark_values.values()):
+            results[f"Benchmark: {metric_name}"] = benchmark_values
 
-# Create DataFrame
-summary_df = pd.DataFrame(results).T
-summary_df = summary_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Order columns
-formatted_df = summary_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
+    # Create and format DataFrame
+    summary_df = pd.DataFrame(results).T
+    summary_df = summary_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]
+    formatted_df = summary_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
 
-# Display
-st.dataframe(formatted_df)
+    # Display
+    st.dataframe(formatted_df)
 
-# Download
-csv_download = summary_df.reset_index().rename(columns={"index": "Metric"})
-csv_bytes = csv_download.to_csv(index=False).encode("utf-8")
-st.download_button(
-    label="⬇️ Download Metric Summary by Period",
-    data=csv_bytes,
-    file_name="metrics_by_period.csv",
-    mime="text/csv"
-)
-
-st.markdown("## 🔎 Rolling Analysis")
-
-# --- Optional Section: Rolling 10-Year Alpha Summary ---
-st.markdown("### 📈 Optional: Rolling 5-Year Alpha Analysis")
+    # Download
+    csv_download = summary_df.reset_index().rename(columns={"index": "Metric"})
+    csv_bytes = csv_download.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="⬇️ Download Metric Summary by Period",
+        data=csv_bytes,
+        file_name="metrics_by_period.csv",
+        mime="text/csv"
+    )
 
 if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
 
