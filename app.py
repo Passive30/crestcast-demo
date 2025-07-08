@@ -633,7 +633,7 @@ with cols[2]:
 
 st.markdown("### ☎️ Let's Talk")
 st.markdown(
-    "#_Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
-    "#[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
+    "# _Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
+    "# [Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
 )
 
