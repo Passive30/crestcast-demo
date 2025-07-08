@@ -40,12 +40,15 @@ def annualized_std(r):
     return r.std() * np.sqrt(12)
 
 def beta_alpha(port, bench):
+    port = port.dropna()
+    bench = bench.dropna()
     df = pd.concat([port, bench], axis=1).dropna()
     if df.shape[0] < 2: return np.nan, np.nan
     cov = np.cov(df.iloc[:, 0], df.iloc[:, 1])
     beta = cov[0, 1] / cov[1, 1]
     alpha = annualized_return(df.iloc[:, 0]) - beta * annualized_return(df.iloc[:, 1])
     return beta, alpha
+
 def sharpe_ratio(r, rf=0.0): return ((r - rf/12).mean() / r.std()) * np.sqrt(12)
 def max_drawdown(r):
     cumulative = (1 + r).cumprod()
