@@ -363,9 +363,9 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
 # === Rolling 10-Year Alpha Chart ===
-st.subheader("📉 Rolling 5-Year Alpha vs. Benchmark")
+st.subheader("📉 Rolling 10-Year Alpha vs. Benchmark")
 
-rolling_window = 60
+rolling_window = 120
 rolling_alpha = []
 
 for i in range(rolling_window, len(net_crestcast)):
@@ -459,12 +459,12 @@ st.download_button(
 )
 
 
-# === Rolling 36-Month Max Drawdown ===
-st.subheader("📉 Optional: Rolling 5-Year Max Drawdown")
-show_dd_chart = st.checkbox("Show Rolling Max Drawdown Chart (36-Month Window)")
+# === Rolling 120-Month Max Drawdown ===
+st.subheader("📉 Optional: Rolling 10-Year Max Drawdown")
+show_dd_chart = st.checkbox("Show Rolling Max Drawdown Chart (120-Month Window)")
 
 if show_dd_chart:
-    rolling_window = 60  # 60-month window
+    rolling_window = 120  # 60-month window
     rolling_dd_crest = []
     rolling_dd_bench = []
     dates = []
@@ -505,16 +505,16 @@ if show_dd_chart:
     st.pyplot(fig)
 
     st.caption(
-        "Each point shows the steepest drawdown experienced in the preceding  5 years. Flat sections reflect periods where past drawdowns lingered,"
+        "Each point shows the steepest drawdown experienced in the preceding  10 years. Flat sections reflect periods where past drawdowns lingered,"
         "highlighting both the depth and persistence of capital stress. CrestCast’s smoother stair-steps show fewer and shallower multi-year drawdowns compared to the benchmark."
     )
 
     # Add Download Button
     csv_dd = rolling_dd_df.reset_index().to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="⬇️ Download 5-Year Max Drawdown Data",
+        label="⬇️ Download 10-Year Max Drawdown Data",
         data=csv_dd,
-        file_name="rolling_5y_max_drawdown.csv",
+        file_name="rolling_10y_max_drawdown.csv",
         mime="text/csv"
     )
 
@@ -597,11 +597,11 @@ st.download_button(
 )
 
 # --- Optional Section: Rolling 5-Year Alpha Summary ---
-st.markdown("### 📈 Optional: Rolling 3-Year Alpha Analysis")
+st.markdown("### 📈 Optional: Rolling 10-Year Alpha Analysis")
 
-if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
+if st.checkbox("Show Rolling 10-Year Alpha Summary and Distribution"):
 
-    rolling_window = 60  # 60 months = 5 years
+    rolling_window = 120  # 60 months = 5 years
     alpha_values = []
 
     for i in range(rolling_window, len(returns_df)):
@@ -617,24 +617,24 @@ if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
     alpha_series = pd.Series(alpha_values)
 
     if alpha_series.empty:
-        st.warning("Not enough data to calculate rolling 3-year alpha.")
+        st.warning("Not enough data to calculate rolling 10-year alpha.")
     else:
         # Summary stats
         percent_positive = (alpha_series > 0).mean()
         average_alpha = alpha_series.mean()
 
         st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
-        st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
+        st.markdown(f"- **Average Annualized Alpha (10-Year Windows)**: **{average_alpha:.2%}**")
 
         # Histogram
         fig, ax = plt.subplots()
         alpha_series.hist(bins=30, edgecolor='black', ax=ax)
-        ax.set_title("Distribution of 5-Year Rolling Alpha")
+        ax.set_title("Distribution of 10-Year Rolling Alpha")
         ax.set_xlabel("Annualized Alpha")
         ax.set_ylabel("Frequency")
         st.pyplot(fig)
 
-rolling_window = 36
+rolling_window = 120
 crest_sharpes = []
 bench_sharpes = []
 
@@ -656,8 +656,8 @@ sharpe_df = pd.DataFrame({
 percent_better_sharpe = (sharpe_df["CrestCast"] > sharpe_df["Benchmark"]).mean()
 avg_diff = (sharpe_df["CrestCast"] - sharpe_df["Benchmark"]).mean()
 
-st.markdown("### 📈 Rolling 3-Year Sharpe Ratio Comparison")
-st.markdown(f"- **% of 3-Year Periods Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
+st.markdown("### 📈 Rolling 10-Year Sharpe Ratio Comparison")
+st.markdown(f"- **% of 10-Year Periods Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
 st.markdown(f"- **Average Sharpe Ratio Advantage**: **{avg_diff:.2f}**")
 
 st.markdown("### Let’s Talk")
