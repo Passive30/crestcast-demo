@@ -267,7 +267,7 @@ if macro_aware:
         # Show all three
         comparison_df = pd.DataFrame({
             f"{preferred_index} (Benchmark)": cum_benchmark,
-            f"CrestCast Overlay ({tracking_error_label_choice})": cum_blended,
+            f"CrestCast™({tracking_error_label_choice})": cum_blended,
             "CrestCast (100% Net of Fee)": cum_crestcast
         })
 
@@ -369,7 +369,7 @@ for i in range(len(metrics)):
     
     formatted_data.append({
         "Metric": metric,
-        f"CrestCast Overlay ({tracking_error_label_choice})": fmt(cc_val, metric),
+        f"CrestCast™ ({tracking_error_label_choice})": fmt(cc_val, metric),
         "Benchmark": fmt(bench_val, metric)
     })
 
@@ -377,7 +377,7 @@ summary_df = pd.DataFrame(formatted_data)
 st.table(summary_df)
 
 # === Full-Period Drawdown Comparison ===
-st.subheader("📉 Full-Period Drawdown: CrestCast vs. Benchmark")
+st.subheader("📉 Full-Period Drawdown: CrestCast™ vs. Benchmark")
 
 # Align data and calculate drawdowns
 valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
@@ -392,10 +392,10 @@ dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
 
 # Plot
 fig, ax = plt.subplots(figsize=(6, 3))
-ax.fill_between(dd_crest.index, dd_crest.values, 0, color='green', alpha=0.15, label="CrestCast Drawdown")
+ax.fill_between(dd_crest.index, dd_crest.values, 0, color='green', alpha=0.15, label="CrestCast™ Drawdown")
 ax.plot(dd_bench.index, dd_bench.values, label="Benchmark Drawdown", color="#d62728", linestyle="--", linewidth=1.2, alpha=0.7)
 ax.set_ylabel("Drawdown")
-ax.set_title("Full-Period Drawdown: CrestCast vs. Benchmark")
+ax.set_title("Full-Period Drawdown: CrestCast™ vs. Benchmark")
 ax.set_ylim(-0.6, 0.05)
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 ax.grid(True, linestyle="--", alpha=0.3)
@@ -403,14 +403,14 @@ ax.legend(loc="lower left")
 st.pyplot(fig)
 
 st.caption(
-    "**Interpretation:** This chart shows the historical drawdowns of CrestCast and the benchmark across the full sample period. "
+    "**Interpretation:** This chart shows the historical drawdowns of CrestCast™ index and the benchmark across the full sample period. "
     "It highlights the depth and duration of capital declines, offering a clear comparison of downside experience across time."
 )
 
 # Download button
 drawdown_df = pd.DataFrame({
     "Date": dd_crest.index,
-    "CrestCast Drawdown": dd_crest.values,
+    "CrestCast™ Drawdown": dd_crest.values,
     "Benchmark Drawdown": dd_bench.values
 })
 csv_drawdown = drawdown_df.to_csv(index=False).encode("utf-8")
@@ -426,7 +426,7 @@ st.markdown("## 🔎 Advanced Analytics")
 
 # === Metric-First Performance Table ===
 if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
-    st.subheader("📊 CrestCast vs. Benchmark: Metrics by Period")
+    st.subheader("📊 CrestCast™ vs. Benchmark: Metrics by Period")
 
     # Periods to evaluate
     today = blended_crestcast.index[-1]
@@ -572,17 +572,17 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Assemble results
     sharpe_df = pd.DataFrame({
         "Date": dates,
-        "CrestCast Sharpe": crest_sharpes,
+        "CrestCast™ Sharpe": crest_sharpes,
         "Benchmark Sharpe": bench_sharpes
     }).set_index("Date")
 
     # Summary stats
     percent_better_sharpe = (sharpe_df["CrestCast Sharpe"] > sharpe_df["Benchmark Sharpe"]).mean()
-    avg_diff = (sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
+    avg_diff = (sharpe_df["CrestCast™ Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
 
     st.markdown("### 📈 Rolling 5-Year Sharpe Ratio Comparison")
-    st.markdown(f"- **% of 5-Year Windows Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
-    st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
+    st.markdown(f"- **% of 5-Year Windows Where CrestCast™ > Benchmark**: **{percent_better_sharpe:.1%}**")
+    st.markdown(f"- **Average Sharpe Advantage (CrestCast™ minus Benchmark)**: **{avg_diff:.2f}**")
 
     # Optional chart
     fig, ax = plt.subplots(figsize=(6, 3))  # Smaller footprint
@@ -599,7 +599,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     fig, ax = plt.subplots(figsize=(6, 3))
     sharpe_diff.hist(bins=30, edgecolor="black", ax=ax)
     ax.axvline(0, color="gray", linestyle="--", linewidth=1)
-    ax.set_title("Distribution of Sharpe Ratio Improvement (CrestCast - Benchmark)")
+    ax.set_title("Distribution of Sharpe Ratio Improvement (CrestCast™ - Benchmark)")
     ax.set_xlabel("Sharpe Advantage")
     ax.set_ylabel("Frequency")
     st.pyplot(fig)
@@ -631,9 +631,9 @@ with cols[2]:
         delta="Sharpe higher in 78% of periods"
     )
 
-st.markdown("### Let’s Talk")
+st.markdown("### ☎️ Let's Talk")
 st.markdown(
-    "_Whether you're building ETFs, models, or personalized portfolios, CrestCast™ can power your solution. "
+    "_Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
     "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
 )
 
