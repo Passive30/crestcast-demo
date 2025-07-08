@@ -606,7 +606,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
 
 # === Final Summary Stat Row (Always Visible) ===
 st.markdown("---")
-st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
+#st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
 
 cols = st.columns(3)
 
@@ -631,6 +631,7 @@ with cols[2]:
         delta="Sharpe higher in 78% of periods"
     )
 
+st.markdown("---")
 st.markdown("### ☎️ Let's Talk")
 st.markdown(
     "#### _Whether you're building ETFs, models, or SMAs & personalized portfolios, CrestCast™ can add power to your solution. "
