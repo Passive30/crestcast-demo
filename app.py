@@ -326,7 +326,7 @@ st.table(summary_df)
 # === Rolling 10-Year Alpha Chart ===
 st.subheader("📉 Rolling 5-Year Alpha vs. Benchmark")
 
-rolling_window = 60
+rolling_window = 18
 rolling_alpha = []
 
 for i in range(rolling_window, len(net_crestcast)):
