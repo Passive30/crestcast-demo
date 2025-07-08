@@ -464,7 +464,7 @@ st.subheader("📉 Optional: Rolling 5-Year Max Drawdown")
 show_dd_chart = st.checkbox("Show Rolling Max Drawdown Chart (36-Month Window)")
 
 if show_dd_chart:
-    rolling_window = 60  # 36-month window
+    rolling_window = 60  # 60-month window
     rolling_dd_crest = []
     rolling_dd_bench = []
     dates = []
@@ -602,3 +602,40 @@ st.markdown(
     "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
 )
 
+# --- Optional Section: Rolling 5-Year Alpha Summary ---
+st.markdown("### 📈 Optional: Rolling 5-Year Alpha Analysis")
+
+if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
+
+    rolling_window = 60  # 60 months = 5 years
+    alpha_values = []
+
+    for i in range(rolling_window, len(returns_df)):
+        port = returns_df.iloc[i - rolling_window:i, 0]  # CrestCast
+        bench = returns_df.iloc[i - rolling_window:i, 1]  # Benchmark
+
+        if port.isnull().any() or bench.isnull().any():
+            continue
+
+        _, alpha = beta_alpha(port, bench)
+        alpha_values.append(alpha)
+
+    alpha_series = pd.Series(alpha_values)
+
+    if alpha_series.empty:
+        st.warning("Not enough data to calculate rolling 5-year alpha.")
+    else:
+        # Summary stats
+        percent_positive = (alpha_series > 0).mean()
+        average_alpha = alpha_series.mean()
+
+        st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
+        st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
+
+        # Histogram
+        fig, ax = plt.subplots()
+        alpha_series.hist(bins=30, edgecolor='black', ax=ax)
+        ax.set_title("Distribution of 5-Year Rolling Alpha")
+        ax.set_xlabel("Annualized Alpha")
+        ax.set_ylabel("Frequency")
+        st.pyplot(fig)
