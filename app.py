@@ -606,31 +606,77 @@ if st.checkbox("Show Rolling 3-Year Alpha Summary and Distribution"):
         st.pyplot(fig2)
 
 
-rolling_window = 120
+
+rolling_window = 120  # 10 years
 crest_sharpes = []
 bench_sharpes = []
+dates = []
 
 for i in range(rolling_window, len(returns_df)):
-    port = returns_df.iloc[i - rolling_window:i, 0]
-    bench = returns_df.iloc[i - rolling_window:i, 1]
+    window = returns_df.iloc[i - rolling_window:i]
+
+    # Safe column access
+    if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
+        continue
+
+    port = window["CrestCast"]
+    bench = window["Benchmark"]
 
     if port.isnull().any() or bench.isnull().any():
         continue
 
     crest_sharpes.append(sharpe_ratio(port))
     bench_sharpes.append(sharpe_ratio(bench))
+    dates.append(window.index[-1])
 
-# Compare ratios
+# Assemble results
 sharpe_df = pd.DataFrame({
-    "CrestCast": crest_sharpes,
-    "Benchmark": bench_sharpes
-})
-percent_better_sharpe = (sharpe_df["CrestCast"] > sharpe_df["Benchmark"]).mean()
-avg_diff = (sharpe_df["CrestCast"] - sharpe_df["Benchmark"]).mean()
+    "Date": dates,
+    "CrestCast Sharpe": crest_sharpes,
+    "Benchmark Sharpe": bench_sharpes
+}).set_index("Date")
+
+# Summary stats
+percent_better_sharpe = (sharpe_df["CrestCast Sharpe"] > sharpe_df["Benchmark Sharpe"]).mean()
+avg_diff = (sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
 
 st.markdown("### 📈 Rolling 10-Year Sharpe Ratio Comparison")
-st.markdown(f"- **% of 10-Year Periods Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
-st.markdown(f"- **Average Sharpe Ratio Advantage**: **{avg_diff:.2f}**")
+st.markdown(f"- **% of 10-Year Windows Where CrestCast > Benchmark**: **{percent_better_sharpe:.1%}**")
+st.markdown(f"- **Average Sharpe Advantage (CrestCast minus Benchmark)**: **{avg_diff:.2f}**")
+
+# Optional chart
+fig, ax = plt.subplots()
+sharpe_df.plot(ax=ax)
+ax.set_title("Rolling 10-Year Sharpe Ratio")
+ax.set_ylabel("Sharpe Ratio")
+ax.grid(True, linestyle="--", alpha=0.3)
+st.pyplot(fig)
+
+st.markdown("---")
+st.markdown("### 🔎 Consistent Alpha Across Market Cycles")
+
+cols = st.columns(3)
+
+with cols[0]:
+    st.metric(
+        label="📈 10-Year Rolling Alpha",
+        value="100%",
+        delta="Positive in all periods"
+    )
+
+with cols[1]:
+    st.metric(
+        label="📊 5-Year Rolling Alpha",
+        value="98%",
+        delta="Nearly universal"
+    )
+
+with cols[2]:
+    st.metric(
+        label="📉 3-Year Rolling Alpha",
+        value="97%",
+        delta="Strong short-cycle performance"
+    )
 
 st.markdown("### Let’s Talk")
 st.markdown(
