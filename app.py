@@ -162,25 +162,64 @@ else:
     lam = 0.0
     email_opt_in = False
 
-# --- Section 4: Select Time Period ---
+# --- Section 4: Select Time Period for Analysis ---
 st.header("4. Select Time Period for Analysis")
 
 min_date = returns_df.index.min().to_pydatetime().date()
 max_date = returns_df.index.max().to_pydatetime().date()
+min_window = pd.DateOffset(years=3)
 
-# Custom date range slider only (stress scenarios removed)
-date_range = st.slider(
-    "Select Custom Date Range",
-    min_value=min_date,
-    max_value=max_date,
-    value=(min_date, max_date)
+# Mode selector
+analysis_mode = st.radio(
+    "Choose Time Frame Mode:",
+    ["Custom Range", "Rolling 3-Year Window"],
+    index=1,
+    horizontal=True
 )
 
-start_date = pd.to_datetime(date_range[0])
-end_date = pd.to_datetime(date_range[1])
-st.caption(f"Showing performance from **{start_date.date()}** to **{end_date.date()}**")
+# Initialize variables
+start_date, end_date = None, None
 
-# Slice the return data
+if analysis_mode == "Custom Range":
+    # Calculate default to enforce minimum range
+    default_start = max(min_date, (max_date - min_window).date())
+
+    # Custom range slider
+    date_range = st.slider(
+        "Select Custom Date Range",
+        min_value=min_date,
+        max_value=max_date,
+        value=(default_start, max_date)
+    )
+
+    start_date = pd.to_datetime(date_range[0])
+    end_date = pd.to_datetime(date_range[1])
+
+    # Enforce 3-year minimum
+    if (end_date - start_date) < pd.Timedelta(days=365 * 3):
+        st.error("Please select a date range of at least 3 years.")
+        st.stop()
+
+    st.caption(f"Showing performance from **{start_date.date()}** to **{end_date.date()}**")
+
+elif analysis_mode == "Rolling 3-Year Window":
+    # Calculate latest valid start
+    latest_valid_start = (pd.to_datetime(max_date) - min_window).date()
+
+    # Single-point slider
+    rolling_start = st.slider(
+        "Select Start Date (3-Year Window)",
+        min_value=min_date,
+        max_value=latest_valid_start,
+        value=latest_valid_start
+    )
+
+    start_date = pd.to_datetime(rolling_start)
+    end_date = start_date + min_window - pd.DateOffset(days=1)
+
+    st.caption(f"Showing performance from **{start_date.date()}** to **{end_date.date()}**")
+
+# Slice return data for selected time frame
 filtered_returns = returns_df.loc[start_date:end_date]
 
 
