@@ -108,11 +108,13 @@ This demo illustrates how the CrestCast™ index can dynamically enhance core eq
 st.header("1. Simulation Setup")
 st.info(
     "📌 *Disclaimer:* Intervallum Technologies is not a registered investment advisor and does not provide personalized investment advice. "
-    "This demonstration is for informational purposes only and is intended to illustrate the capabilities of the CrestCast™ Macro-Aware U.S. Factor Rotation Index. "
-    "Results from August 1, 2025, onward reflect live index data. From 2001 through July 2025, the index is based on strict out-of-sample implementation "
-    "using a walk-forward validated model. Factor tilts are applied by our calculation agent based on analytics derived exclusively from the training period—"
-    "ensuring no forward-looking bias is introduced into the model."
+    "This demonstration is for informational and educational purposes only and is intended to illustrate the capabilities of the CrestCast™ "
+    "Macro-Aware U.S. Factor Rotation Index. "
+    "From 2001 to 2013, the model was developed using rigorous walk-forward cross-validation. "
+    "From 2014 forward, the index has been applied strictly out-of-sample, with no retraining or parameter tuning—"
+    "ensuring the results reflect real-world, forward-only implementation."
 )
+
 
 
 client_name = "CC Demo"
