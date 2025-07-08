@@ -654,6 +654,12 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     ax.grid(True, linestyle="--", alpha=0.3)
     st.pyplot(fig)
 
+# === Final Summary Stat Row (Always Visible) ===
+st.markdown("---")
+st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
+
+cols = st.columns(3)
+
 with cols[0]:
     st.metric(
         label="📈 10-Year Windows",
@@ -674,7 +680,6 @@ with cols[2]:
         value="97% Alpha ⬆",
         delta="Sharpe higher in 78% of periods"
     )
-
 
 st.markdown("### Let’s Talk")
 st.markdown(
