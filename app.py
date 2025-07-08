@@ -15,6 +15,10 @@ st.set_page_config(
 # === Display Banner ===
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
+st.warning(
+    "🔧 This demo is currently in **DRAFT** status. Index data becomes live and finalized on August 1, 2025. "
+    "Please treat all results as preliminary and subject to refinement during this period."
+)
 
 # === Load and Clean CSV ===
 file_path = "timeseries_6-25-2025.csv"
