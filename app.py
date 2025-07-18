@@ -605,9 +605,11 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax1.set_ylabel("Frequency")
         st.pyplot(fig1)
 
-        # Bar chart of rolling alpha with improved styling
+        # Bar chart of rolling alpha with Intervallum branding
         fig2, ax2 = plt.subplots(figsize=(10, 4))
-        alpha_series.plot(kind="bar", ax=ax2, color="#005BBB", edgecolor="black")  # Crisp blue
+        
+        # Set custom blue fill with black edge
+        alpha_series.plot(kind="bar", ax=ax2, color="#005BBB", edgecolor="black")
         
         # Horizontal line at 0% alpha
         ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
@@ -617,13 +619,16 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax2.set_xlabel("Date")
         ax2.set_ylabel("Annualized Alpha")
         
-        # Set x-axis ticks to show only every 6 months
-        xticks = alpha_series.index.to_series().resample("6M").first().index
+        # === X-axis annual labels only ===
+        # Select annual frequency ticks (Jan 1 each year)
+        xticks = alpha_series.index.to_series().resample("12M").first().index
         tick_positions = [alpha_series.index.get_loc(dt) for dt in xticks if dt in alpha_series.index]
         ax2.set_xticks(tick_positions)
-        ax2.set_xticklabels([dt.strftime('%b %Y') for dt in xticks if dt in alpha_series.index], rotation=45)
+        ax2.set_xticklabels([dt.strftime('%Y') for dt in xticks if dt in alpha_series.index], rotation=45)
         
-        st.pyplot(fig2)
+        # Optional: tighten layout
+        plt.tight_layout()
+
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
     rolling_window = 60  # 5 years
