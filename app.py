@@ -12,6 +12,50 @@ st.set_page_config(
     layout="wide"
 )
 
+# === Custom Intervallum Brand Styling ===
+st.markdown("""
+    <style>
+    /* Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap');
+
+    html, body, [class*="css"]  {
+        font-family: 'DM Sans', sans-serif;
+        color: #F5F8FA;
+        background-color: #0E1A2F;
+    }
+
+    /* Streamlit Table Headers */
+    .stDataFrame th {
+        background-color: #121D33 !important;
+        color: #F5F8FA !important;
+        font-weight: 600 !important;
+        border-bottom: 1px solid #3D8BFF !important;
+    }
+
+    /* Table cells */
+    .stDataFrame td {
+        background-color: #0E1A2F !important;
+        color: #F5F8FA !important;
+        border-bottom: 0.25px solid #1F2A44;
+    }
+
+    /* Alternating row background */
+    .stDataFrame tbody tr:nth-child(even) td {
+        background-color: #16233C !important;
+    }
+
+    /* Scrollbar (if needed) */
+    ::-webkit-scrollbar-thumb {
+        background: #3D8BFF;
+    }
+    ::-webkit-scrollbar-track {
+        background: #121D33;
+    }
+
+    </style>
+""", unsafe_allow_html=True)
+
+
 # === Display Banner ===
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
