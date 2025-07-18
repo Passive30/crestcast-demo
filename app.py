@@ -639,6 +639,20 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         plt.tight_layout()
         st.pyplot(fig2)
 
+
+        # === Download Button for Rolling Alpha Data ===
+        csv_bytes = alpha_series.reset_index().rename(
+            columns={alpha_series.name: "Rolling 5-Year Alpha", "index": "Date"}
+        ).to_csv(index=False).encode("utf-8")
+        
+        st.download_button(
+            label="⬇️ Download Rolling Alpha Data (CSV)",
+            data=csv_bytes,
+            file_name="rolling_5y_alpha.csv",
+            mime="text/csv"
+        )
+
+
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
     rolling_window = 60  # 5 years
