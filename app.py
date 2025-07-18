@@ -60,8 +60,7 @@ st.markdown("""
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
 st.warning(
-    "🔧 This demo is currently in **DRAFT** status. Index data becomes live and finalized on August 1, 2025. "
-    "Please treat all results as preliminary and subject to refinement during this period."
+    "🔧 This demo is currently in **DRAFT** status. CrestCast Index goes live on August 1, 2025. "
 )
 
 # === Load and Clean CSV ===
