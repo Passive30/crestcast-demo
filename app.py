@@ -605,15 +605,15 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax1.set_ylabel("Frequency")
         st.pyplot(fig1)
 
-        # Line chart of rolling alpha
-        fig2, ax2 = plt.subplots()
-        alpha_series.plot(ax=ax2, color="navy", linewidth=2)
+        # Bar chart of rolling alpha
+        fig2, ax2 = plt.subplots(figsize=(10, 4))
+        alpha_series.plot(kind="bar", ax=ax2, color="navy", edgecolor="black")
         ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
         ax2.set_title("Rolling 5-Year Alpha Over Time")
         ax2.set_xlabel("Date")
         ax2.set_ylabel("Annualized Alpha")
+        ax2.tick_params(axis='x', labelrotation=45)
         st.pyplot(fig2)
-
 
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
