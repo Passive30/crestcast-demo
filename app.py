@@ -610,7 +610,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         fig2, ax2 = plt.subplots(figsize=(10, 4))
         
         # Plot with Intervallum blue and crisp black edges
-        alpha_series.plot(kind="bar", ax=ax2, color="#005BBB", edgecolor="black")
+        alpha_series.plot(kind="bar", ax=ax2, color="blue", edgecolor="black")
         
         # Reference line at 0%
         ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
