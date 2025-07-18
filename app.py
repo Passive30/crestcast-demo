@@ -491,7 +491,18 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
     multi_index_df = multi_index_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Reorder
     
     # Format values as percents where applicable
-    formatted_df = multi_index_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
+    # Metrics that should be shown as decimal numbers (not percentages)
+    decimal_metrics = ["Beta", "Sharpe Ratio", "Ulcer Ratio", "Information Ratio"]
+    
+    def smart_format(val, metric_name):
+        if isinstance(val, (int, float)):
+            return f"{val:.2f}" if any(dm in metric_name for dm in decimal_metrics) else f"{val:.2%}"
+        return val
+    
+    formatted_df = multi_index_df.copy()
+    for metric in formatted_df.index:
+        formatted_df.loc[metric] = formatted_df.loc[metric].apply(lambda x: smart_format(x, metric))
+
     
     # Display
     st.dataframe(formatted_df, use_container_width=True)
