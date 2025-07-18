@@ -32,11 +32,10 @@ returns_df = returns_df.dropna(how="all")
 def annualized_return(r):
     if r.empty:
         return np.nan
-    total_return = (1 + r).prod() - 1
-    n_months = len(r)
-    if n_months < 1:
-        return np.nan
-    return (1 + total_return) ** (12 / n_months) - 1
+    cumulative_return = (1 + r).prod()
+    n_years = len(r) / 12
+    return cumulative_return ** (1 / n_years) - 1
+
 
 def annualized_std(r):
     if r.empty:
