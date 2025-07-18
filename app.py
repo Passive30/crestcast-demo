@@ -605,21 +605,26 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax1.set_ylabel("Frequency")
         st.pyplot(fig1)
 
-        # Bar chart of rolling alpha with Intervallum branding
         fig2, ax2 = plt.subplots(figsize=(10, 4))
         
-        # Use default matplotlib blue
-        alpha_series.plot(kind="bar", ax=ax2, color="#1f77b4", edgecolor="black")
+        # Plot with wide, light blue bars
+        alpha_series.plot(
+            kind="bar",
+            ax=ax2,
+            color="#4A90E2",        # Lighter blue that pops
+            edgecolor="white",      # Optional: remove heavy outlines
+            width=0.9               # Makes bars fatter, easier to see color
+        )
         
         # Zero line
         ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
         
-        # Title and axes
+        # Titles and labels
         ax2.set_title("Rolling 5-Year Alpha Over Time")
         ax2.set_xlabel("Date")
         ax2.set_ylabel("Annualized Alpha")
         
-        # Annual x-axis labels (only for January)
+        # Show x-axis labels only in January (annual)
         tick_labels = []
         tick_positions = []
         
@@ -631,10 +636,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax2.set_xticks(tick_positions)
         ax2.set_xticklabels(tick_labels, rotation=45)
         
-        # Final layout tweak
         plt.tight_layout()
-        
-        # Show in Streamlit
         st.pyplot(fig2)
 
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
