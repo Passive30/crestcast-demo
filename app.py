@@ -605,16 +605,25 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         ax1.set_ylabel("Frequency")
         st.pyplot(fig1)
 
-        # Bar chart of rolling alpha
+        # Bar chart of rolling alpha with improved styling
         fig2, ax2 = plt.subplots(figsize=(10, 4))
-        alpha_series.plot(kind="bar", ax=ax2, color="navy", edgecolor="black")
+        alpha_series.plot(kind="bar", ax=ax2, color="#005BBB", edgecolor="black")  # Crisp blue
+        
+        # Horizontal line at 0% alpha
         ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
+        
+        # Title and axis labels
         ax2.set_title("Rolling 5-Year Alpha Over Time")
         ax2.set_xlabel("Date")
         ax2.set_ylabel("Annualized Alpha")
-        ax2.tick_params(axis='x', labelrotation=45)
+        
+        # Set x-axis ticks to show only every 6 months
+        xticks = alpha_series.index.to_series().resample("6M").first().index
+        tick_positions = [alpha_series.index.get_loc(dt) for dt in xticks if dt in alpha_series.index]
+        ax2.set_xticks(tick_positions)
+        ax2.set_xticklabels([dt.strftime('%b %Y') for dt in xticks if dt in alpha_series.index], rotation=45)
+        
         st.pyplot(fig2)
-
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
     rolling_window = 60  # 5 years
@@ -667,7 +676,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     
     # Plot histogram of Sharpe improvements
     fig, ax = plt.subplots(figsize=(6, 3))
-    sharpe_diff.hist(bins=30, edgecolor="black", ax=ax)
+    sharpe_diff.hist(bins=30, edgecolor="blue", ax=ax)
     ax.axvline(0, color="gray", linestyle="--", linewidth=1)
     ax.set_title("Distribution of Sharpe Ratio Improvement (CrestCast™ - Benchmark)")
     ax.set_xlabel("Sharpe Advantage")
