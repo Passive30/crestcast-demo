@@ -572,7 +572,6 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
     for i in range(rolling_window, len(returns_df)):
         window = returns_df.iloc[i - rolling_window:i]
 
-        # Use named columns directly — no iloc for series
         if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
             st.error("Missing required columns: 'CrestCast' and 'Benchmark'")
             st.stop()
@@ -592,7 +591,6 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
     if alpha_series.empty:
         st.warning("Not enough data to calculate rolling 5-year alpha.")
     else:
-        # Summary stats
         percent_positive = (alpha_series > 0).mean()
         average_alpha = alpha_series.mean()
 
@@ -600,12 +598,21 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
 
         # Histogram
-        fig, ax = plt.subplots()
-        alpha_series.hist(bins=30, edgecolor='black', ax=ax)
-        ax.set_title("Distribution of 5-Year Rolling Alpha")
-        ax.set_xlabel("Annualized Alpha")
-        ax.set_ylabel("Frequency")
-        st.pyplot(fig)
+        fig1, ax1 = plt.subplots()
+        alpha_series.hist(bins=30, edgecolor='black', ax=ax1)
+        ax1.set_title("Distribution of 5-Year Rolling Alpha")
+        ax1.set_xlabel("Annualized Alpha")
+        ax1.set_ylabel("Frequency")
+        st.pyplot(fig1)
+
+        # Line chart of rolling alpha
+        fig2, ax2 = plt.subplots()
+        alpha_series.plot(ax=ax2, color="navy", linewidth=2)
+        ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
+        ax2.set_title("Rolling 5-Year Alpha Over Time")
+        ax2.set_xlabel("Date")
+        ax2.set_ylabel("Annualized Alpha")
+        st.pyplot(fig2)
 
 
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
