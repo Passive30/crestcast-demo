@@ -459,53 +459,54 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
     }
 
-    # Storage: {metric -> {period -> value}}
-    results = {}
-
-    for metric_name, func in metrics.items():
-        crestcast_values = {}
-        benchmark_values = {}
-
-        for label, start_date in periods.items():
-            port = blended_crestcast.loc[start_date:].rename("CrestCast")
-            bench = benchmark.loc[start_date:].rename("Benchmark")
-
-            df = pd.concat([port, bench], axis=1).dropna()
-            if df.empty:
-                crestcast_values[label] = np.nan
-                benchmark_values[label] = np.nan
-                continue
-
+    # Storage: {(period, label) -> {metric: value}}
+    from collections import defaultdict
+    
+    # Create nested structure: outer keys are periods, inner are CrestCast / Benchmark
+    nested_data = defaultdict(dict)
+    
+    for label, start_date in periods.items():
+        port = blended_crestcast.loc[start_date:].rename("CrestCast")
+        bench = benchmark.loc[start_date:].rename("Benchmark")
+    
+        df = pd.concat([port, bench], axis=1).dropna()
+        if df.empty:
+            for metric_name in metrics.keys():
+                nested_data[(label, "CrestCast™")][metric_name] = np.nan
+                nested_data[(label, "Benchmark")][metric_name] = np.nan
+            continue
+    
+        for metric_name, func in metrics.items():
             result = func(df["CrestCast"], df["Benchmark"])
-
             if isinstance(result, tuple):
-                crestcast_values[label] = result[0]
-                benchmark_values[label] = result[1]
+                nested_data[(label, "CrestCast™")][metric_name] = result[0]
+                nested_data[(label, "Benchmark")][metric_name] = result[1]
             else:
-                crestcast_values[label] = result
-                benchmark_values[label] = np.nan
-
-        results[f"CrestCast: {metric_name}"] = crestcast_values
-        if any(v is not np.nan for v in benchmark_values.values()):
-            results[f"Benchmark: {metric_name}"] = benchmark_values
-
-    # Create and format DataFrame
-    summary_df = pd.DataFrame(results).T
-    summary_df = summary_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]
-    formatted_df = summary_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
-
+                nested_data[(label, "CrestCast™")][metric_name] = result
+                nested_data[(label, "Benchmark")][metric_name] = np.nan
+    
+    # Build new DataFrame with MultiIndex columns
+    multi_index_df = pd.DataFrame(nested_data)
+    multi_index_df.columns = pd.MultiIndex.from_tuples(multi_index_df.columns)
+    multi_index_df = multi_index_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Reorder
+    
+    # Format values as percents where applicable
+    formatted_df = multi_index_df.applymap(lambda x: f"{x:.2%}" if isinstance(x, (int, float)) else x)
+    
     # Display
-    st.dataframe(formatted_df)
-
-    # Download
-    csv_download = summary_df.reset_index().rename(columns={"index": "Metric"})
-    csv_bytes = csv_download.to_csv(index=False).encode("utf-8")
+    st.dataframe(formatted_df, use_container_width=True)
+    
+    # Download CSV
+    csv_df = multi_index_df.copy()
+    csv_df.columns = [f"{p} - {s}" for p, s in csv_df.columns]
+    csv_bytes = csv_df.reset_index().rename(columns={"index": "Metric"}).to_csv(index=False).encode("utf-8")
     st.download_button(
         label="⬇️ Download Metric Summary by Period",
         data=csv_bytes,
         file_name="metrics_by_period.csv",
         mime="text/csv"
     )
+
 
 if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
 
