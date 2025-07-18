@@ -610,7 +610,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
 
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     # Sharpe stats and chart
-    rolling_window = 120  # 5 years
+    rolling_window = 60  # 5 years
     crest_sharpes = []
     bench_sharpes = []
     dates = []
