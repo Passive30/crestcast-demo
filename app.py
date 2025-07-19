@@ -427,6 +427,9 @@ st.download_button(
 )
 
 st.markdown("## 🔎 Advanced Analytics")
+
+st.write("Columns in returns_df:", returns_df.columns.tolist())
+st.write("Selected index:", selected_index)
 # === Metric-First Performance Table ===
 if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
     st.subheader("📊 CrestCast™ vs. Benchmark: Metrics by Period")
