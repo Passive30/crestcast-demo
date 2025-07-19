@@ -141,14 +141,17 @@ st.markdown(f"**Demo Label:** {client_name}")
 account_type = "Individual"
 
 # === Section 2: Select Base Index ===
-st.header("2. Select Benchmark for Comparison")
+st.header("2. Select CrestCast Index")
 
-index_options = {
-    "Russell 3000 Index": "Russell_3000"
-}
+# Select CrestCast index to analyze
+available_indexes = [col for col in returns_df.columns if col.startswith("CrestCast")]
+selected_index = st.selectbox("Choose a CrestCast Index to Analyze", available_indexes)
 
-selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
-preferred_index = index_options[selected_label]
+# Automatically select the benchmark
+if "Bond" in selected_index:
+    preferred_index = "AGG"
+else:
+    preferred_index = "Russell_3000"
 
 
 # === Section 3: Activate Overlay Logic ===
