@@ -12,50 +12,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# === Custom Intervallum Brand Styling ===
-st.markdown("""
-    <style>
-    /* Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap');
-
-    html, body, [class*="css"]  {
-        font-family: 'DM Sans', sans-serif;
-        color: #F5F8FA;
-        background-color: #0E1A2F;
-    }
-
-    /* Streamlit Table Headers */
-    .stDataFrame th {
-        background-color: #121D33 !important;
-        color: #F5F8FA !important;
-        font-weight: 600 !important;
-        border-bottom: 1px solid #3D8BFF !important;
-    }
-
-    /* Table cells */
-    .stDataFrame td {
-        background-color: #0E1A2F !important;
-        color: #F5F8FA !important;
-        border-bottom: 0.25px solid #1F2A44;
-    }
-
-    /* Alternating row background */
-    .stDataFrame tbody tr:nth-child(even) td {
-        background-color: #16233C !important;
-    }
-
-    /* Scrollbar (if needed) */
-    ::-webkit-scrollbar-thumb {
-        background: #3D8BFF;
-    }
-    ::-webkit-scrollbar-track {
-        background: #121D33;
-    }
-
-    </style>
-""", unsafe_allow_html=True)
-
-
 # === Display Banner ===
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
@@ -85,10 +41,14 @@ def annualized_std(r):
         return np.nan
     return r.std() * np.sqrt(12)
 
-def beta_alpha(port, bench):
+def beta_alpha(port, bench, rf=None):
     port = port.dropna()
     bench = bench.dropna()
     df = pd.concat([port.rename("CrestCast"), bench.rename("Benchmark")], axis=1).dropna()
+    if rf is not None:
+        rf = rf.reindex(df.index).fillna(method='ffill')
+        df["CrestCast"] -= rf
+        df["Benchmark"] -= rf
     if df.shape[0] < 2:
         return np.nan, np.nan
     cov = np.cov(df["CrestCast"], df["Benchmark"])
@@ -97,7 +57,19 @@ def beta_alpha(port, bench):
     return beta, alpha
 
 
-def sharpe_ratio(r, rf=0.0): return ((r - rf/12).mean() / r.std()) * np.sqrt(12)
+
+def sharpe_ratio(r, rf=None):
+    if r.empty:
+        return np.nan
+    if rf is None:
+        rf = 0.0
+    elif isinstance(rf, pd.Series):
+        rf = rf.reindex(r.index).fillna(method='ffill')
+        excess = r - rf
+    else:
+        excess = r - rf / 12  # flat annualized rf fallback
+    return (excess.mean() / r.std()) * np.sqrt(12)
+
 def max_drawdown(r):
     cumulative = (1 + r).cumprod()
     peak = cumulative.cummax()
@@ -130,17 +102,18 @@ def tracking_error(port, bench):
     except Exception as e:
         print(f"Tracking Error Calculation Failed: {e}")
         return np.nan
-def information_ratio(port, bench):
+def information_ratio(port, bench, rf=None):
     try:
         df = pd.concat([port, bench], axis=1).dropna()
         if df.shape[0] < 2:
             return np.nan
-        beta, alpha = beta_alpha(df.iloc[:, 0], df.iloc[:, 1])
+        beta, alpha = beta_alpha(df.iloc[:, 0], df.iloc[:, 1], rf=rf)
         te = tracking_error(df.iloc[:, 0], df.iloc[:, 1])
         return alpha / te if te and te != 0 else np.nan
     except Exception as e:
         print(f"Information Ratio Calculation Failed: {e}")
         return np.nan
+
 
 
 # === Intro and Branding ===
