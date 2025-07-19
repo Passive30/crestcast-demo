@@ -27,6 +27,9 @@ returns_df = returns_df.set_index('Date')
 returns_df = returns_df.apply(pd.to_numeric, errors='coerce')
 returns_df = returns_df.dropna(how="all")
 
+# === Risk-Free Rate Extraction ===
+risk_free_series = returns_df['Risk_Free'].dropna()
+
 # === Metric Functions ===
 def annualized_return(r):
     if r.empty:
@@ -34,7 +37,6 @@ def annualized_return(r):
     cumulative_return = (1 + r).prod()
     n_years = len(r) / 12
     return cumulative_return ** (1 / n_years) - 1
-
 
 def annualized_std(r):
     if r.empty:
@@ -56,8 +58,6 @@ def beta_alpha(port, bench, rf=None):
     alpha = annualized_return(df["CrestCast"]) - beta * annualized_return(df["Benchmark"])
     return beta, alpha
 
-
-
 def sharpe_ratio(r, rf=None):
     if r.empty:
         return np.nan
@@ -67,7 +67,7 @@ def sharpe_ratio(r, rf=None):
         rf = rf.reindex(r.index).fillna(method='ffill')
         excess = r - rf
     else:
-        excess = r - rf / 12  # flat annualized rf fallback
+        excess = r - rf / 12
     return (excess.mean() / r.std()) * np.sqrt(12)
 
 def max_drawdown(r):
@@ -75,6 +75,7 @@ def max_drawdown(r):
     peak = cumulative.cummax()
     drawdown = (cumulative - peak) / peak
     return drawdown.min()
+
 def ulcer_index(returns):
     if returns.empty:
         return np.nan
@@ -88,8 +89,10 @@ def ulcer_ratio(port, bench):
     ui = ulcer_index(port)
     ar = annualized_return(port)
     return ar / ui if ui != 0 else np.nan
-    
-def cumulative_return(series): return (1 + series).cumprod()
+
+def cumulative_return(series):
+    return (1 + series).cumprod()
+
 def tracking_error(port, bench):
     try:
         df = pd.concat([port, bench], axis=1).dropna()
@@ -102,6 +105,7 @@ def tracking_error(port, bench):
     except Exception as e:
         print(f"Tracking Error Calculation Failed: {e}")
         return np.nan
+
 def information_ratio(port, bench, rf=None):
     try:
         df = pd.concat([port, bench], axis=1).dropna()
@@ -113,7 +117,6 @@ def information_ratio(port, bench, rf=None):
     except Exception as e:
         print(f"Information Ratio Calculation Failed: {e}")
         return np.nan
-
 
 
 # === Intro and Branding ===
