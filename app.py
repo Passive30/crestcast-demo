@@ -162,7 +162,7 @@ if macro_aware:
     st.markdown("The CrestCast™ index can serve as an overlay to empower dynamic shifts to style allocations in an underlying index.")
 
     # Overlay Fee Dropdown
-    fee_bps = st.selectbox("Overlay Fee (basis points))", [0, 20, 35, 50], index=0)
+    fee_bps = st.selectbox("Fee Stress Test (basis points))", [0, 20, 35, 50, 75, 100], index=0)
     annual_fee = fee_bps / 10000
     monthly_fee = annual_fee / 12
 
