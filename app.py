@@ -134,10 +134,7 @@ st.info(
     "Macro-Aware U.S. Factor Rotation Index. The model was built using walk-forward cross-validation on data from 1968 through 2013. "
     "From 2014 forward, index results reflect strict out-of-sample application with no retraining or parameter adjustments—"
     "providing a real-world view of model integrity and implementation discipline."
-
 )
-
-
 
 client_name = "CC Demo"
 st.markdown(f"**Demo Label:** {client_name}")
@@ -147,8 +144,7 @@ account_type = "Individual"
 st.header("2. Select Benchmark for Comparison")
 
 index_options = {
-    "Russell 3000 Index": "^RUATR",
-    "R3000 ETF (IWV)": "IWV"  # Add this line
+    "Russell 3000 Index": "Russell_3000"
 }
 
 selected_label = st.selectbox("Preferred Index", list(index_options.keys()))
@@ -159,7 +155,6 @@ preferred_index = index_options[selected_label]
 st.header("3. Activate Macro-Aware Index")
 macro_aware = True
 
-
 if macro_aware:
     st.markdown("The CrestCast™ index can serve as an overlay to empower dynamic shifts to style allocations in an underlying index.")
 
@@ -169,7 +164,6 @@ if macro_aware:
     monthly_fee = annual_fee / 12
 
     # Friendly Tracking Error Dropdown
-    # Hard-coded tracking error preference
     tracking_error_label = "How closely should your portfolio follow the index?"
     tracking_error_label_choice = "Flexible"
 
@@ -180,10 +174,6 @@ if macro_aware:
         "Flexible": 1.0
     }
     lam = lambda_values[tracking_error_label_choice]
-
-
-    # Optional Email Opt-In
-#    email_opt_in = st.checkbox("📬 Please send me an email with monthly commentary on regime outlook and implications for my portfolio.")
 
 else:
     # If macro overlay is off, set safe defaults
@@ -204,30 +194,24 @@ min_window = pd.DateOffset(years=5)
 analysis_mode = st.radio(
     "Choose Time Frame Mode:",
     ["Custom Range", "Rolling 5-Year Window"],
-    index=0,  # make Custom Range the default
+    index=0,
     horizontal=True
 )
-
 
 # Initialize variables
 start_date, end_date = None, None
 
 if analysis_mode == "Custom Range":
-    # Calculate default to enforce minimum range
-    default_start = min_date  # start at full history by default
-
-    # Custom range slider
+    default_start = min_date
     date_range = st.slider(
         "Select Custom Date Range",
         min_value=min_date,
         max_value=max_date,
         value=(default_start, max_date)
     )
-
     start_date = pd.to_datetime(date_range[0])
     end_date = pd.to_datetime(date_range[1])
 
-    # Enforce 3-year minimum
     if (end_date - start_date) < pd.Timedelta(days=365 * 3):
         st.error("Please select a date range of at least 3 years.")
         st.stop()
@@ -235,17 +219,13 @@ if analysis_mode == "Custom Range":
     st.caption(f"Showing performance from **{start_date.date()}** to **{end_date.date()}**")
 
 elif analysis_mode == "Rolling 5-Year Window":
-    # Calculate latest valid start
     latest_valid_start = (pd.to_datetime(max_date) - min_window).date()
-
-    # Single-point slider
     rolling_start = st.slider(
         "Select Start Date (5-Year Window)",
         min_value=min_date,
         max_value=latest_valid_start,
         value=latest_valid_start
     )
-
     start_date = pd.to_datetime(rolling_start)
     end_date = start_date + min_window - pd.DateOffset(days=1)
 
@@ -254,10 +234,9 @@ elif analysis_mode == "Rolling 5-Year Window":
 # Slice return data for selected time frame
 cumulative_returns = returns_df.loc[start_date:end_date]
 
-
 # --- Extract Data for Chart + Stats ---
 benchmark = cumulative_returns[preferred_index]
-gross_crestcast = cumulative_returns["CrestCast"]
+gross_crestcast = cumulative_returns["CrestCast_100"]
 net_crestcast = gross_crestcast - monthly_fee
 
 # Create a working returns DataFrame with standardized column names
@@ -296,7 +275,6 @@ if macro_aware:
             f"CrestCast™({tracking_error_label_choice})": cum_blended,
             "CrestCast (100% Net of Fee)": cum_crestcast
         })
-
 else:
     comparison_df = pd.DataFrame({
         f"{preferred_index} (Benchmark)": cum_benchmark
@@ -321,7 +299,6 @@ else:
 
 # --- Performance Summary Table ---
 st.subheader(f"📊 Performance Summary (Net of Fees) — {start_date.date()} to {end_date.date()}")
-
 
 # New: Up/down capture & return delta
 def up_capture(port, bench):
@@ -351,10 +328,10 @@ metrics = [
 crestcast_metrics = [
     annualized_return(named_crestcast),
     annualized_std(named_crestcast),
-    *beta_alpha(named_crestcast, named_benchmark),
-    sharpe_ratio(named_crestcast),
+    *beta_alpha(named_crestcast, named_benchmark, rf=risk_free_series),
+    sharpe_ratio(named_crestcast, rf=risk_free_series),
     tracking_error(named_crestcast, named_benchmark),
-    information_ratio(named_crestcast, named_benchmark),
+    information_ratio(named_crestcast, named_benchmark, rf=risk_free_series),
     max_drawdown(named_crestcast),
     ulcer_ratio(named_crestcast, named_benchmark),
     up_capture(named_crestcast, named_benchmark),
@@ -366,14 +343,13 @@ benchmark_metrics = [
     annualized_return(named_benchmark),
     annualized_std(named_benchmark),
     None, None,
-    sharpe_ratio(named_benchmark),
+    sharpe_ratio(named_benchmark, rf=risk_free_series),
     None,  # Tracking Error placeholder
     None,  # Information Ratio
     max_drawdown(named_benchmark),
     ulcer_ratio(named_benchmark, named_benchmark),
     1.0, 1.0
 ]
-
 
 # Format function with metric context
 def fmt(x, metric=None):
@@ -449,104 +425,14 @@ st.download_button(
 
 st.markdown("## 🔎 Advanced Analytics")
 
-
-# === Metric-First Performance Table ===
-if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
-    st.subheader("📊 CrestCast™ vs. Benchmark: Metrics by Period")
-
-    # Periods to evaluate
-    today = blended_crestcast.index[-1]
-    periods = {
-        "1 Year": today - pd.DateOffset(years=1),
-        "5 Year": today - pd.DateOffset(years=5),
-        "10 Year": today - pd.DateOffset(years=10),
-        "Since Inception": blended_crestcast.index[0]
-    }
-
-    # Metrics to compute
-    metrics = {
-        "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
-        "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
-        "Beta": lambda p, b: beta_alpha(p, b)[0],
-        "Alpha": lambda p, b: beta_alpha(p, b)[1],
-        "Sharpe Ratio": lambda p, b: (sharpe_ratio(p), sharpe_ratio(b)),
-        "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
-        "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
-        "Tracking Error": lambda p, b: tracking_error(p, b),
-        "Information Ratio": lambda p, b: information_ratio(p, b),
-        "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
-        "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
-    }
-
-    # Storage: {(period, label) -> {metric: value}}
-    from collections import defaultdict
-    
-    # Create nested structure: outer keys are periods, inner are CrestCast / Benchmark
-    nested_data = defaultdict(dict)
-    
-    for label, start_date in periods.items():
-        port = blended_crestcast.loc[start_date:].rename("CrestCast")
-        bench = benchmark.loc[start_date:].rename("Benchmark")
-    
-        df = pd.concat([port, bench], axis=1).dropna()
-        if df.empty:
-            for metric_name in metrics.keys():
-                nested_data[(label, "CrestCast™")][metric_name] = np.nan
-                nested_data[(label, "Benchmark")][metric_name] = np.nan
-            continue
-    
-        for metric_name, func in metrics.items():
-            result = func(df["CrestCast"], df["Benchmark"])
-            if isinstance(result, tuple):
-                nested_data[(label, "CrestCast™")][metric_name] = result[0]
-                nested_data[(label, "Benchmark")][metric_name] = result[1]
-            else:
-                nested_data[(label, "CrestCast™")][metric_name] = result
-                nested_data[(label, "Benchmark")][metric_name] = np.nan
-    
-    # Build new DataFrame with MultiIndex columns
-    multi_index_df = pd.DataFrame(nested_data)
-    multi_index_df.columns = pd.MultiIndex.from_tuples(multi_index_df.columns)
-    multi_index_df = multi_index_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Reorder
-    
-    # Format values as percents where applicable
-    # Metrics that should be shown as decimal numbers (not percentages)
-    decimal_metrics = ["Beta", "Sharpe Ratio", "Ulcer Ratio", "Information Ratio"]
-    
-    def smart_format(val, metric_name):
-        if isinstance(val, (int, float)):
-            return f"{val:.2f}" if any(dm in metric_name for dm in decimal_metrics) else f"{val:.2%}"
-        return val
-    
-    formatted_df = multi_index_df.copy()
-    for metric in formatted_df.index:
-        formatted_df.loc[metric] = formatted_df.loc[metric].apply(lambda x: smart_format(x, metric))
-
-    
-    # Display
-    st.dataframe(formatted_df, use_container_width=True)
-    
-    # Download CSV
-    csv_df = multi_index_df.copy()
-    csv_df.columns = [f"{p} - {s}" for p, s in csv_df.columns]
-    csv_bytes = csv_df.reset_index().rename(columns={"index": "Metric"}).to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="⬇️ Download Metric Summary by Period",
-        data=csv_bytes,
-        file_name="metrics_by_period.csv",
-        mime="text/csv"
-    )
-
-
+# === Rolling 5-Year Alpha Summary ===
 if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
-
-    rolling_window = 60  # 5 years
+    rolling_window = 60
     alpha_values = []
     alpha_dates = []
 
     for i in range(rolling_window, len(returns_df)):
         window = returns_df.iloc[i - rolling_window:i]
-
         if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
             st.error("Missing required columns: 'CrestCast' and 'Benchmark'")
             st.stop()
@@ -557,7 +443,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        _, alpha = beta_alpha(port, bench)
+        _, alpha = beta_alpha(port, bench, rf=risk_free_series)
         alpha_values.append(alpha)
         alpha_dates.append(window.index[-1])
 
@@ -572,7 +458,6 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
         st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
 
-        # Histogram
         fig1, ax1 = plt.subplots()
         alpha_series.hist(bins=30, edgecolor='black', ax=ax1)
         ax1.set_title("Distribution of 5-Year Rolling Alpha")
@@ -581,45 +466,28 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         st.pyplot(fig1)
 
         fig2, ax2 = plt.subplots(figsize=(10, 4))
-        
-        # Plot with wide, light blue bars
-        alpha_series.plot(
-            kind="bar",
-            ax=ax2,
-            color="#4A90E2",        # Lighter blue that pops
-            edgecolor="white",      # Optional: remove heavy outlines
-            width=0.9               # Makes bars fatter, easier to see color
-        )
-        
-        # Zero line
+        alpha_series.plot(kind="bar", ax=ax2, color="#4A90E2", edgecolor="white", width=0.9)
         ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
-        
-        # Titles and labels
         ax2.set_title("Rolling 5-Year Alpha Over Time")
         ax2.set_xlabel("Date")
         ax2.set_ylabel("Annualized Alpha")
-        
-        # Show x-axis labels only in January (annual)
+
         tick_labels = []
         tick_positions = []
-        
         for i, dt in enumerate(alpha_series.index):
             if dt.month == 1:
                 tick_labels.append(dt.strftime('%Y'))
                 tick_positions.append(i)
-        
+
         ax2.set_xticks(tick_positions)
         ax2.set_xticklabels(tick_labels, rotation=45)
-        
         plt.tight_layout()
         st.pyplot(fig2)
 
-
-        # === Download Button for Rolling Alpha Data ===
         csv_bytes = alpha_series.reset_index().rename(
             columns={alpha_series.name: "Rolling 5-Year Alpha", "index": "Date"}
         ).to_csv(index=False).encode("utf-8")
-        
+
         st.download_button(
             label="⬇️ Download Rolling Alpha Data (CSV)",
             data=csv_bytes,
@@ -627,18 +495,15 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
             mime="text/csv"
         )
 
-
+# === Rolling 5-Year Sharpe Comparison ===
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
-    # Sharpe stats and chart
-    rolling_window = 60  # 5 years
+    rolling_window = 60
     crest_sharpes = []
     bench_sharpes = []
     dates = []
 
     for i in range(rolling_window, len(returns_df)):
         window = returns_df.iloc[i - rolling_window:i]
-
-        # Safe column access
         if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
             continue
 
@@ -648,18 +513,16 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        crest_sharpes.append(sharpe_ratio(port))
-        bench_sharpes.append(sharpe_ratio(bench))
+        crest_sharpes.append(sharpe_ratio(port, rf=risk_free_series))
+        bench_sharpes.append(sharpe_ratio(bench, rf=risk_free_series))
         dates.append(window.index[-1])
 
-    # Assemble results
     sharpe_df = pd.DataFrame({
         "Date": dates,
         "CrestCast Sharpe": crest_sharpes,
         "Benchmark Sharpe": bench_sharpes
     }).set_index("Date")
 
-    # Summary stats
     percent_better_sharpe = (sharpe_df["CrestCast Sharpe"] > sharpe_df["Benchmark Sharpe"]).mean()
     avg_diff = (sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]).mean()
 
@@ -667,18 +530,14 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     st.markdown(f"- **% of 5-Year Windows Where CrestCast™ > Benchmark**: **{percent_better_sharpe:.1%}**")
     st.markdown(f"- **Average Sharpe Advantage (CrestCast™ minus Benchmark)**: **{avg_diff:.2f}**")
 
-    # Optional chart
-    fig, ax = plt.subplots(figsize=(6, 3))  # Smaller footprint
+    fig, ax = plt.subplots(figsize=(6, 3))
     sharpe_df.plot(ax=ax)
     ax.set_title("Rolling 5-Year Sharpe Ratio")
     ax.set_ylabel("Sharpe Ratio")
     ax.grid(True, linestyle="--", alpha=0.3)
     st.pyplot(fig)
 
-    # Compute Sharpe improvement series
     sharpe_diff = sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]
-    
-    # Plot histogram of Sharpe improvements
     fig, ax = plt.subplots(figsize=(6, 3))
     sharpe_diff.hist(bins=30, edgecolor="blue", ax=ax)
     ax.axvline(0, color="gray", linestyle="--", linewidth=1)
@@ -689,7 +548,6 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
 
 # === Final Summary Stat Row (Always Visible) ===
 st.markdown("---")
-#st.markdown("### 📊 Performance Consistency: Alpha + Sharpe Advantage")
 
 cols = st.columns(3)
 
@@ -713,7 +571,6 @@ with cols[2]:
         value="74% Alpha ⬆",
         delta="Sharpe outperformance: 60% of periods"
     )
-
 
 st.markdown("---")
 
