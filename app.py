@@ -427,8 +427,93 @@ st.download_button(
 )
 
 st.markdown("## 🔎 Advanced Analytics")
+# === Metric-First Performance Table ===
+if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
+    st.subheader("📊 CrestCast™ vs. Benchmark: Metrics by Period")
 
-# === Rolling 5-Year Alpha Summary ===
+    # Periods to evaluate
+    today = blended_crestcast.index[-1]
+    periods = {
+        "1 Year": today - pd.DateOffset(years=1),
+        "5 Year": today - pd.DateOffset(years=5),
+        "10 Year": today - pd.DateOffset(years=10),
+        "Since Inception": blended_crestcast.index[0]
+    }
+
+    # Metrics to compute
+    metrics = {
+        "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
+        "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
+        "Beta": lambda p, b: beta_alpha(p, b, rf=risk_free_series)[0],
+        "Alpha": lambda p, b: beta_alpha(p, b, rf=risk_free_series)[1],
+        "Sharpe Ratio": lambda p, b: (sharpe_ratio(p, rf=risk_free_series), sharpe_ratio(b, rf=risk_free_series)),
+        "Information Ratio": lambda p, b: information_ratio(p, b, rf=risk_free_series),
+        "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
+        "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
+        "Tracking Error": lambda p, b: tracking_error(p, b),
+        "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
+        "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
+    }
+
+    # Storage: {(period, label) -> {metric: value}}
+    from collections import defaultdict
+    
+    # Create nested structure: outer keys are periods, inner are CrestCast / Benchmark
+    nested_data = defaultdict(dict)
+    
+    for label, start_date in periods.items():
+        port = returns_df[selected_index].loc[start_date:].rename("CrestCast")
+        bench = returns_df[preferred_index].loc[start_date:].rename("Benchmark")
+        
+            
+        df = pd.concat([port, bench], axis=1).dropna()
+        if df.empty:
+            for metric_name in metrics.keys():
+                nested_data[(label, "CrestCast™")][metric_name] = np.nan
+                nested_data[(label, "Benchmark")][metric_name] = np.nan
+            continue
+    
+        for metric_name, func in metrics.items():
+            result = func(df["CrestCast"], df["Benchmark"])
+            if isinstance(result, tuple):
+                nested_data[(label, "CrestCast™")][metric_name] = result[0]
+                nested_data[(label, "Benchmark")][metric_name] = result[1]
+            else:
+                nested_data[(label, "CrestCast™")][metric_name] = result
+                nested_data[(label, "Benchmark")][metric_name] = np.nan
+    
+    # Build new DataFrame with MultiIndex columns
+    multi_index_df = pd.DataFrame(nested_data)
+    multi_index_df.columns = pd.MultiIndex.from_tuples(multi_index_df.columns)
+    multi_index_df = multi_index_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Reorder
+    
+    # Format values as percents where applicable
+    # Metrics that should be shown as decimal numbers (not percentages)
+    decimal_metrics = ["Beta", "Sharpe Ratio", "Ulcer Ratio", "Information Ratio"]
+    
+    def smart_format(val, metric_name):
+        if isinstance(val, (int, float)):
+            return f"{val:.2f}" if any(dm in metric_name for dm in decimal_metrics) else f"{val:.2%}"
+        return val
+    
+    formatted_df = multi_index_df.copy()
+    for metric in formatted_df.index:
+        formatted_df.loc[metric] = formatted_df.loc[metric].apply(lambda x: smart_format(x, metric))
+
+    
+    # Display
+    st.dataframe(formatted_df, use_container_width=True)
+    
+    # Download CSV
+    csv_df = multi_index_df.copy()
+    csv_df.columns = [f"{p} - {s}" for p, s in csv_df.columns]
+    csv_bytes = csv_df.reset_index().rename(columns={"index": "Metric"}).to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="⬇️ Download Metric Summary by Period",
+        data=csv_bytes,
+        file_name="metrics_by_period.csv",
+        mime="text/csv"
+    )# === Rolling 5-Year Alpha Summary ===
 if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
     rolling_window = 60
     alpha_values = []
