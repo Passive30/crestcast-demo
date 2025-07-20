@@ -653,12 +653,12 @@ with cols[1]:
         delta="Sharpe outperformance: 76% of periods"
     )
 
-with cols[2]:
-    st.metric(
-        label="📉 3-Year Windows",
-        value="74% Alpha ⬆",
-        delta="Sharpe outperformance: 60% of periods"
-    )
+#with cols[2]:
+#    st.metric(
+#        label="📉 3-Year Windows",
+#        value="73% Alpha ⬆",
+#        delta="Sharpe outperformance: 60% of periods"
+#    )
 
 st.markdown("---")
 
