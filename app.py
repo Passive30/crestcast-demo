@@ -12,6 +12,15 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+    <style>
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # === Display Banner ===
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
