@@ -11,16 +11,6 @@ st.set_page_config(
     page_title="Passive 3.0™ Overlay – Direct Indexing Demo",
     layout="wide"
 )
-
-st.markdown("""
-    <style>
-        .main {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 # === Display Banner ===
 banner = Image.open("banner.png")
 st.image(banner, use_container_width=True)
@@ -298,7 +288,7 @@ comparison_df = comparison_df.dropna()
 
 # Plot with matplotlib
 if not comparison_df.empty:
-    fig, ax = plt.subplots(figsize=(4, 3))
+    fig, ax = plt.subplots(figsize=(6, 3))
     for col in comparison_df.columns:
         ax.plot(comparison_df.index, comparison_df[col], label=col)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
