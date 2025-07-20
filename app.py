@@ -298,7 +298,7 @@ comparison_df = comparison_df.dropna()
 
 # Plot with matplotlib
 if not comparison_df.empty:
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(4, 3))
     for col in comparison_df.columns:
         ax.plot(comparison_df.index, comparison_df[col], label=col)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
