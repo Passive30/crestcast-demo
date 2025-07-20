@@ -136,7 +136,7 @@ st.info(
 )
 
 client_name = "CC Demo"
-st.markdown(f"**Demo Label:** {client_name}")
+#st.markdown(f"**Demo Label:** {client_name}")
 account_type = "Individual"
 
 # === Section 2: Select Base Index ===
