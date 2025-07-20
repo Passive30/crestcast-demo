@@ -238,19 +238,26 @@ elif analysis_mode == "Rolling 5-Year Window":
 cumulative_returns = returns_df.loc[start_date:end_date]
 
 # --- Extract Data for Chart + Stats ---
-benchmark = cumulative_returns[preferred_index]
-gross_crestcast = cumulative_returns["CrestCast_100"]
-net_crestcast = gross_crestcast - monthly_fee
+# Ensure selected index and benchmark exist
+if selected_index not in returns_df.columns or preferred_index not in returns_df.columns:
+    st.error(f"Missing required column(s): {selected_index} or {preferred_index}")
+    st.stop()
 
-# Create a working returns DataFrame with standardized column names
-returns_df = pd.concat([
+gross_crestcast = returns_df[selected_index]
+net_crestcast = gross_crestcast - monthly_fee
+benchmark = returns_df[preferred_index]
+
+# Clean slice of working return data
+returns_subset = pd.concat([
     benchmark.rename("Benchmark"),
     net_crestcast.rename("CrestCast")
 ], axis=1).dropna()
 
-valid_data = pd.concat([benchmark, net_crestcast], axis=1).dropna()
-benchmark = valid_data.iloc[:, 0]
-net_crestcast = valid_data.iloc[:, 1]
+# Optional: use these for downstream stats/plots
+benchmark = returns_subset["Benchmark"]
+net_crestcast = returns_subset["CrestCast"]
+blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
+
 
 # Blend based on tracking error (λ)
 blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
@@ -428,19 +435,17 @@ st.download_button(
 
 st.markdown("## 🔎 Advanced Analytics")
 
-st.write("Columns in returns_df:", returns_df.columns.tolist())
-st.write("Selected index:", selected_index)
 # === Metric-First Performance Table ===
 if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
     st.subheader("📊 CrestCast™ vs. Benchmark: Metrics by Period")
 
     # Periods to evaluate
-    today = blended_crestcast.index[-1]
+    today = returns_subset.index[-1]
     periods = {
         "1 Year": today - pd.DateOffset(years=1),
         "5 Year": today - pd.DateOffset(years=5),
         "10 Year": today - pd.DateOffset(years=10),
-        "Since Inception": blended_crestcast.index[0]
+        "Since Inception": returns_subset.index[0]
     }
 
     # Metrics to compute
@@ -458,24 +463,20 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
     }
 
-    # Storage: {(period, label) -> {metric: value}}
     from collections import defaultdict
-    
-    # Create nested structure: outer keys are periods, inner are CrestCast / Benchmark
     nested_data = defaultdict(dict)
-    
+
     for label, start_date in periods.items():
-        port = returns_df[selected_index].loc[start_date:].rename("CrestCast")
-        bench = returns_df[preferred_index].loc[start_date:].rename("Benchmark")
-        
-            
+        port = returns_subset["CrestCast"].loc[start_date:]
+        bench = returns_subset["Benchmark"].loc[start_date:]
         df = pd.concat([port, bench], axis=1).dropna()
+
         if df.empty:
             for metric_name in metrics.keys():
                 nested_data[(label, "CrestCast™")][metric_name] = np.nan
                 nested_data[(label, "Benchmark")][metric_name] = np.nan
             continue
-    
+
         for metric_name, func in metrics.items():
             result = func(df["CrestCast"], df["Benchmark"])
             if isinstance(result, tuple):
@@ -484,30 +485,24 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
             else:
                 nested_data[(label, "CrestCast™")][metric_name] = result
                 nested_data[(label, "Benchmark")][metric_name] = np.nan
-    
-    # Build new DataFrame with MultiIndex columns
+
     multi_index_df = pd.DataFrame(nested_data)
     multi_index_df.columns = pd.MultiIndex.from_tuples(multi_index_df.columns)
-    multi_index_df = multi_index_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]  # Reorder
-    
-    # Format values as percents where applicable
-    # Metrics that should be shown as decimal numbers (not percentages)
+    multi_index_df = multi_index_df[["1 Year", "5 Year", "10 Year", "Since Inception"]]
+
     decimal_metrics = ["Beta", "Sharpe Ratio", "Ulcer Ratio", "Information Ratio"]
-    
+
     def smart_format(val, metric_name):
         if isinstance(val, (int, float)):
             return f"{val:.2f}" if any(dm in metric_name for dm in decimal_metrics) else f"{val:.2%}"
         return val
-    
+
     formatted_df = multi_index_df.copy()
     for metric in formatted_df.index:
         formatted_df.loc[metric] = formatted_df.loc[metric].apply(lambda x: smart_format(x, metric))
 
-    
-    # Display
     st.dataframe(formatted_df, use_container_width=True)
-    
-    # Download CSV
+
     csv_df = multi_index_df.copy()
     csv_df.columns = [f"{p} - {s}" for p, s in csv_df.columns]
     csv_bytes = csv_df.reset_index().rename(columns={"index": "Metric"}).to_csv(index=False).encode("utf-8")
@@ -516,75 +511,7 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         data=csv_bytes,
         file_name="metrics_by_period.csv",
         mime="text/csv"
-    )# === Rolling 5-Year Alpha Summary ===
-if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
-    rolling_window = 60
-    alpha_values = []
-    alpha_dates = []
-
-    for i in range(rolling_window, len(returns_df)):
-        window = returns_df.iloc[i - rolling_window:i]
-        if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
-            st.error("Missing required columns: 'CrestCast' and 'Benchmark'")
-            st.stop()
-
-        port = window["CrestCast"].rename("CrestCast")
-        bench = window["Benchmark"].rename("Benchmark")
-
-        if port.isnull().any() or bench.isnull().any():
-            continue
-
-        _, alpha = beta_alpha(port, bench, rf=risk_free_series)
-        alpha_values.append(alpha)
-        alpha_dates.append(window.index[-1])
-
-    alpha_series = pd.Series(alpha_values, index=alpha_dates)
-
-    if alpha_series.empty:
-        st.warning("Not enough data to calculate rolling 5-year alpha.")
-    else:
-        percent_positive = (alpha_series > 0).mean()
-        average_alpha = alpha_series.mean()
-
-        st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
-        st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
-
-        fig1, ax1 = plt.subplots()
-        alpha_series.hist(bins=30, edgecolor='black', ax=ax1)
-        ax1.set_title("Distribution of 5-Year Rolling Alpha")
-        ax1.set_xlabel("Annualized Alpha")
-        ax1.set_ylabel("Frequency")
-        st.pyplot(fig1)
-
-        fig2, ax2 = plt.subplots(figsize=(10, 4))
-        alpha_series.plot(kind="bar", ax=ax2, color="#4A90E2", edgecolor="white", width=0.9)
-        ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
-        ax2.set_title("Rolling 5-Year Alpha Over Time")
-        ax2.set_xlabel("Date")
-        ax2.set_ylabel("Annualized Alpha")
-
-        tick_labels = []
-        tick_positions = []
-        for i, dt in enumerate(alpha_series.index):
-            if dt.month == 1:
-                tick_labels.append(dt.strftime('%Y'))
-                tick_positions.append(i)
-
-        ax2.set_xticks(tick_positions)
-        ax2.set_xticklabels(tick_labels, rotation=45)
-        plt.tight_layout()
-        st.pyplot(fig2)
-
-        csv_bytes = alpha_series.reset_index().rename(
-            columns={alpha_series.name: "Rolling 5-Year Alpha", "index": "Date"}
-        ).to_csv(index=False).encode("utf-8")
-
-        st.download_button(
-            label="⬇️ Download Rolling Alpha Data (CSV)",
-            data=csv_bytes,
-            file_name="rolling_5y_alpha.csv",
-            mime="text/csv"
-        )
+    )
 
 # === Rolling 5-Year Sharpe Comparison ===
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
