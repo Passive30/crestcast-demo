@@ -242,9 +242,10 @@ if selected_index not in returns_df.columns or preferred_index not in returns_df
     st.error(f"Missing required column(s): {selected_index} or {preferred_index}")
     st.stop()
 
-gross_crestcast = returns_df[selected_index]
+gross_crestcast = cumulative_returns[selected_index]
 net_crestcast = gross_crestcast - monthly_fee
-benchmark = returns_df[preferred_index]
+benchmark = cumulative_returns[preferred_index]
+
 
 # Clean slice of working return data
 returns_subset = pd.concat([
