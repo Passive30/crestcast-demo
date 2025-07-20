@@ -259,31 +259,26 @@ net_crestcast = returns_subset["CrestCast"]
 blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
 
 
-# Blend based on tracking error (λ)
-blended_crestcast = (1 - lam) * benchmark + lam * net_crestcast
-
 # --- Section: Percent Return Over Selected Time Range ---
 st.subheader("📈 Net Total Return Over Selected Period (%)")
 
-# Calculate cumulative return as percent
+# Calculate cumulative returns
 cum_benchmark = (1 + benchmark).cumprod() - 1
+cum_crestcast = (1 + net_crestcast).cumprod() - 1
+cum_blended = (1 + blended_crestcast).cumprod() - 1
 
+# Build comparison DataFrame based on lambda
 if macro_aware:
-    cum_crestcast = (1 + net_crestcast).cumprod() - 1
-    cum_blended = (1 + blended_crestcast).cumprod() - 1
-
     if lam == 1.0:
-        # Only show benchmark + full CrestCast line
         comparison_df = pd.DataFrame({
             f"{preferred_index} (Benchmark)": cum_benchmark,
-            "CrestCast (100% Net of Fee)": cum_crestcast
+            f"{selected_index} (Net of Fee)": cum_crestcast
         })
     else:
-        # Show all three
         comparison_df = pd.DataFrame({
             f"{preferred_index} (Benchmark)": cum_benchmark,
-            f"CrestCast™({tracking_error_label_choice})": cum_blended,
-            "CrestCast (100% Net of Fee)": cum_crestcast
+            f"{selected_index} ({tracking_error_label_choice})": cum_blended,
+            f"{selected_index} (100% Net of Fee)": cum_crestcast
         })
 else:
     comparison_df = pd.DataFrame({
@@ -292,7 +287,7 @@ else:
 
 comparison_df = comparison_df.dropna()
 
-# Plot full-width with matplotlib
+# Plot with matplotlib
 if not comparison_df.empty:
     fig, ax = plt.subplots(figsize=(6, 3))
     for col in comparison_df.columns:
@@ -392,12 +387,14 @@ st.table(summary_df)
 st.subheader("📉 Full-Period Drawdown: CrestCast™ vs. Benchmark")
 
 # Align data and calculate drawdowns
-valid_data = pd.concat([blended_crestcast, benchmark], axis=1).dropna()
-blended_crestcast = valid_data.iloc[:, 0]
-benchmark = valid_data.iloc[:, 1]
+valid_data = returns_subset.dropna()
+blended_crestcast = (1 - lam) * valid_data["Benchmark"] + lam * valid_data["CrestCast"]
+benchmark = valid_data["Benchmark"]
+
 
 cumulative_crest = (1 + blended_crestcast).cumprod()
 cumulative_bench = (1 + benchmark).cumprod()
+
 
 dd_crest = (cumulative_crest / cumulative_crest.cummax()) - 1
 dd_bench = (cumulative_bench / cumulative_bench.cummax()) - 1
