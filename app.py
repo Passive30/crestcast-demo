@@ -15,7 +15,7 @@ st.set_page_config(
 st.markdown("""
     <style>
         .main {
-            max-width: 1100px;
+            max-width: 750px;
             margin: 0 auto;
         }
     </style>
