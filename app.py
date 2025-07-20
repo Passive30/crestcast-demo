@@ -509,7 +509,80 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         file_name="metrics_by_period.csv",
         mime="text/csv"
     )
+# === Rolling 5-Year Alpha Summary ===
+if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
+    rolling_window = 60  # 5 years
+    alpha_values = []
+    alpha_dates = []
 
+    for i in range(rolling_window, len(returns_subset)):
+        window = returns_subset.iloc[i - rolling_window:i]
+        port = window["CrestCast"]
+        bench = window["Benchmark"]
+
+        if port.isnull().any() or bench.isnull().any():
+            continue
+
+        _, alpha = beta_alpha(port, bench, rf=risk_free_series.loc[window.index])
+        alpha_values.append(alpha)
+        alpha_dates.append(window.index[-1])
+
+    alpha_series = pd.Series(alpha_values, index=alpha_dates)
+
+    if alpha_series.empty:
+        st.warning("Not enough data to calculate rolling 5-year alpha.")
+    else:
+        percent_positive = (alpha_series > 0).mean()
+        average_alpha = alpha_series.mean()
+
+        st.markdown(f"- **Percent of 5-Year Windows with Positive Alpha**: **{percent_positive:.1%}**")
+        st.markdown(f"- **Average Annualized Alpha (5-Year Windows)**: **{average_alpha:.2%}**")
+
+        # Histogram
+        fig1, ax1 = plt.subplots()
+        alpha_series.hist(bins=30, edgecolor='black', ax=ax1)
+        ax1.set_title("Distribution of 5-Year Rolling Alpha")
+        ax1.set_xlabel("Annualized Alpha")
+        ax1.set_ylabel("Frequency")
+        st.pyplot(fig1)
+
+        # Bar chart of rolling alpha
+        fig2, ax2 = plt.subplots(figsize=(10, 4))
+        alpha_series.plot(
+            kind="bar",
+            ax=ax2,
+            color="#4A90E2",
+            edgecolor="white",
+            width=0.9
+        )
+        ax2.axhline(0, linestyle='--', color='gray', linewidth=1)
+        ax2.set_title("Rolling 5-Year Alpha Over Time")
+        ax2.set_xlabel("Date")
+        ax2.set_ylabel("Annualized Alpha")
+
+        tick_labels = []
+        tick_positions = []
+        for i, dt in enumerate(alpha_series.index):
+            if dt.month == 1:
+                tick_labels.append(dt.strftime('%Y'))
+                tick_positions.append(i)
+
+        ax2.set_xticks(tick_positions)
+        ax2.set_xticklabels(tick_labels, rotation=45)
+        plt.tight_layout()
+        st.pyplot(fig2)
+
+        # Download
+        csv_bytes = alpha_series.reset_index().rename(
+            columns={alpha_series.name: "Rolling 5-Year Alpha", "index": "Date"}
+        ).to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            label="⬇️ Download Rolling Alpha Data (CSV)",
+            data=csv_bytes,
+            file_name="rolling_5y_alpha.csv",
+            mime="text/csv"
+        )
 # === Rolling 5-Year Sharpe Comparison ===
 if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     rolling_window = 60
@@ -517,10 +590,8 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     bench_sharpes = []
     dates = []
 
-    for i in range(rolling_window, len(returns_df)):
-        window = returns_df.iloc[i - rolling_window:i]
-        if "CrestCast" not in window.columns or "Benchmark" not in window.columns:
-            continue
+    for i in range(rolling_window, len(returns_subset)):
+        window = returns_subset.iloc[i - rolling_window:i]
 
         port = window["CrestCast"]
         bench = window["Benchmark"]
@@ -528,8 +599,8 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        crest_sharpes.append(sharpe_ratio(port, rf=risk_free_series))
-        bench_sharpes.append(sharpe_ratio(bench, rf=risk_free_series))
+        crest_sharpes.append(sharpe_ratio(port, rf=risk_free_series.loc[window.index]))
+        bench_sharpes.append(sharpe_ratio(bench, rf=risk_free_series.loc[window.index]))
         dates.append(window.index[-1])
 
     sharpe_df = pd.DataFrame({
@@ -545,6 +616,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     st.markdown(f"- **% of 5-Year Windows Where CrestCast™ > Benchmark**: **{percent_better_sharpe:.1%}**")
     st.markdown(f"- **Average Sharpe Advantage (CrestCast™ minus Benchmark)**: **{avg_diff:.2f}**")
 
+    # Line chart
     fig, ax = plt.subplots(figsize=(6, 3))
     sharpe_df.plot(ax=ax)
     ax.set_title("Rolling 5-Year Sharpe Ratio")
@@ -552,6 +624,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
     ax.grid(True, linestyle="--", alpha=0.3)
     st.pyplot(fig)
 
+    # Histogram of Sharpe Advantage
     sharpe_diff = sharpe_df["CrestCast Sharpe"] - sharpe_df["Benchmark Sharpe"]
     fig, ax = plt.subplots(figsize=(6, 3))
     sharpe_diff.hist(bins=30, edgecolor="blue", ax=ax)
