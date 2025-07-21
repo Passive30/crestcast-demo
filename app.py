@@ -154,11 +154,11 @@ else:
 
 
 # === Section 3: Activate Overlay Logic ===
-st.header("3. Activate Macro-Aware Index")
+st.header("3. Apply Management Fee")
 macro_aware = True
 
 if macro_aware:
-    st.markdown("The CrestCast™ index can serve as an overlay to empower dynamic shifts to style allocations in an underlying index.")
+    st.markdown("Apply expense ratio to simulate a live product comparison to the benchmark.")
 
     # Overlay Fee Dropdown
     fee_bps = st.selectbox("Fee Stress Test (basis points))", [0, 20, 35, 50, 75, 100], index=0)
