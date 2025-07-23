@@ -665,6 +665,6 @@ st.markdown("---")
 st.markdown("### ☎️ Let's Talk")
 st.markdown(
     "#### _Whether you're building ETFs, models, or SMAs & personalized portfolios, a CrestCast™ license can add power to your solution. "
-    "[Schedule a quick call](https://meetings-na2.hubspot.com/alan-thomson) to explore fit. Macro-Aware Factor Rotation is here._"
+    "[Schedule a quick call](https://intervallumtech.com/meeting) to explore fit. Macro-Aware Factor Rotation is here._"
 )
 st.markdown("— *Powered by CrestCast™*")
