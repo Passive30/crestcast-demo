@@ -462,32 +462,6 @@ st.markdown("## 🔎 Advanced Analytics")
 if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
     st.subheader("📊 CrestCast™ vs. Benchmark: Metrics by Period")
 
-    def safe_beta_alpha(port, bench, rf_series):
-    """
-    Aligns and cleans portfolio, benchmark, and risk-free series before computing beta and alpha.
-    Returns (beta, alpha) or (np.nan, np.nan) if insufficient data.
-    """
-    if port is None or bench is None:
-        return np.nan, np.nan
-
-    df = pd.concat([
-        port.rename("CrestCast"),
-        bench.rename("Benchmark")
-    ], axis=1).dropna()
-
-    if df.empty or df.shape[0] < 2:
-        return np.nan, np.nan
-
-    if rf_series is not None:
-        rf = rf_series.reindex(df.index).dropna()
-        if rf.shape[0] < 2:
-            rf = None
-    else:
-        rf = None
-
-    return beta_alpha(df["CrestCast"], df["Benchmark"], rf=rf)
-
-
     # Periods to evaluate
     today = returns_subset.index[-1]
     periods = {
