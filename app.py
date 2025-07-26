@@ -359,10 +359,10 @@ metrics = [
 crestcast_metrics = [
     annualized_return(named_crestcast),
     annualized_std(named_crestcast),
-    *beta_alpha(named_crestcast, named_benchmark, rf=risk_free_series),
-    sharpe_ratio(named_crestcast, rf=risk_free_series),
+    safe_beta_alpha(named_crestcast, named_benchmark, rf_series=risk_free_series),
+    sharpe_ratio(named_crestcast, rf_series=risk_free_series),
     tracking_error(named_crestcast, named_benchmark),
-    information_ratio(named_crestcast, named_benchmark, rf=risk_free_series),
+    information_ratio(named_crestcast, named_benchmark, rf_series=risk_free_series),
     max_drawdown(named_crestcast),
     ulcer_ratio(named_crestcast, named_benchmark),
     up_capture(named_crestcast, named_benchmark),
@@ -374,7 +374,7 @@ benchmark_metrics = [
     annualized_return(named_benchmark),
     annualized_std(named_benchmark),
     None, None,
-    sharpe_ratio(named_benchmark, rf=risk_free_series),
+    sharpe_ratio(named_benchmark, rf_series=risk_free_series),
     None,  # Tracking Error placeholder
     None,  # Information Ratio
     max_drawdown(named_benchmark),
@@ -475,10 +475,10 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
     metrics = {
         "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
         "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
-        "Beta": lambda p, b: beta_alpha(p, b, rf=risk_free_series)[0],
-        "Alpha": lambda p, b: beta_alpha(p, b, rf=risk_free_series)[1],
-        "Sharpe Ratio": lambda p, b: (sharpe_ratio(p, rf=risk_free_series), sharpe_ratio(b, rf=risk_free_series)),
-        "Information Ratio": lambda p, b: information_ratio(p, b, rf=risk_free_series),
+        "Beta": lambda p, b: safe_beta_alpha(p, b, rf_series=risk_free_series)[0],
+        "Alpha": lambda p, b: safe_beta_alpha(p, b, rf_series=risk_free_series)[1],
+        "Sharpe Ratio": lambda p, b: (sharpe_ratio(p, rf_series=risk_free_series), sharpe_ratio(b, rf_series=risk_free_series)),
+        "Information Ratio": lambda p, b: information_ratio(p, b, rf_series=risk_free_series),
         "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
         "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
         "Tracking Error": lambda p, b: tracking_error(p, b),
@@ -549,7 +549,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        _, alpha = beta_alpha(port, bench, rf=risk_free_series.loc[window.index])
+        _, alpha = safe_beta_alpha(port, bench, rf_series=risk_free_series.loc[window.index])
         alpha_values.append(alpha)
         alpha_dates.append(window.index[-1])
 
@@ -625,8 +625,8 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        crest_sharpes.append(sharpe_ratio(port, rf=risk_free_series.loc[window.index]))
-        bench_sharpes.append(sharpe_ratio(bench, rf=risk_free_series.loc[window.index]))
+        crest_sharpes.append(sharpe_ratio(port, rf_series=risk_free_series.loc[window.index]))
+        bench_sharpes.append(sharpe_ratio(bench, rf_series=risk_free_series.loc[window.index]))
         dates.append(window.index[-1])
 
     sharpe_df = pd.DataFrame({
