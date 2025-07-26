@@ -309,22 +309,6 @@ else:
 # --- Performance Summary Table ---
 st.subheader(f"📊 Performance Summary (Net of Fees) — {start_date.date()} to {end_date.date()}")
 
-def safe_beta_alpha(port, bench, rf_series):
-    df = pd.concat([
-        port.rename("CrestCast"),
-        bench.rename("Benchmark")
-    ], axis=1).dropna()
-
-    rf = rf_series.reindex(df.index).ffill()
-    aligned = pd.concat([df, rf.rename("RF")], axis=1).dropna()
-
-    st.write("→ Alpha calc range:", aligned.index.min(), "to", aligned.index.max())
-    st.write("→ Length:", len(aligned), "Mean RF:", aligned["RF"].mean())
-
-    return beta_alpha(aligned["CrestCast"], aligned["Benchmark"], rf=aligned["RF"])
-
-
-
 # New: Up/down capture & return delta
 def up_capture(port, bench):
     mask = bench > 0
@@ -349,8 +333,8 @@ metrics = [
     "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture"
 ]
 
-# Unpack beta and alpha safely first
-beta, alpha = safe_beta_alpha(named_crestcast, named_benchmark, rf_series=risk_free_series)
+# Compute beta and alpha directly
+beta, alpha = beta_alpha(named_crestcast, named_benchmark, rf=risk_free_series)
 
 # CrestCast metrics
 crestcast_metrics = [
@@ -367,17 +351,18 @@ crestcast_metrics = [
     down_capture(named_crestcast, named_benchmark)
 ]
 
-# Benchmark metrics (matches length with None placeholders)
+# Benchmark metrics (with placeholders for beta, alpha, info)
 benchmark_metrics = [
     annualized_return(named_benchmark),
     annualized_std(named_benchmark),
     None, None,  # beta and alpha not calculated for benchmark
     sharpe_ratio(named_benchmark, rf=risk_free_series),
-    None,  # Tracking Error
-    None,  # Information Ratio
+    None,
+    None,
     max_drawdown(named_benchmark),
     ulcer_ratio(named_benchmark, named_benchmark),
-    1.0, 1.0  # Up and Down Capture for benchmark
+    1.0,
+    1.0
 ]
 
 
@@ -470,12 +455,12 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Since Inception": returns_subset.index[0]
     }
 
-    # Metrics to compute
+    # Metrics to compute — now using direct functions only
     metrics = {
         "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
         "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
-        "Beta": lambda p, b: safe_beta_alpha(p, b, rf_series=risk_free_series)[0],
-        "Alpha": lambda p, b: safe_beta_alpha(p, b, rf_series=risk_free_series)[1],
+        "Beta": lambda p, b: beta_alpha(p, b, rf=risk_free_series)[0],
+        "Alpha": lambda p, b: beta_alpha(p, b, rf=risk_free_series)[1],
         "Sharpe Ratio": lambda p, b: (sharpe_ratio(p, rf=risk_free_series), sharpe_ratio(b, rf=risk_free_series)),
         "Information Ratio": lambda p, b: information_ratio(p, b, rf=risk_free_series),
         "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
@@ -484,6 +469,7 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
         "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
     }
+
 
     from collections import defaultdict
     nested_data = defaultdict(dict)
@@ -548,7 +534,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        _, alpha = safe_beta_alpha(port, bench, rf=risk_free_series.loc[window.index])
+        _, alpha = beta_alpha(port, bench, rf=risk_free_series.reindex(window.index).ffill())
         alpha_values.append(alpha)
         alpha_dates.append(window.index[-1])
 
