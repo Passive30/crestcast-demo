@@ -146,6 +146,10 @@ st.header("2. Select CrestCast Index")
 available_indexes = [col for col in returns_df.columns if col.startswith("CrestCast")]
 selected_index = st.selectbox("Choose a CrestCast Index to Analyze", available_indexes)
 
+# Drop rows where selected CrestCast index is missing
+returns_df = returns_df.dropna(subset=[selected_index])
+
+
 # Automatically select the benchmark
 if "Bond" in selected_index:
     preferred_index = "AGG"
