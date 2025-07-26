@@ -325,6 +325,30 @@ def return_diff(port, bench):
 named_crestcast = blended_crestcast.rename("CrestCast")
 named_benchmark = benchmark.rename("Benchmark")
 
+# Build aligned DataFrame used for alpha/beta calculation
+diagnostic_df = pd.concat([
+    net_crestcast.rename("CrestCast"),
+    benchmark.rename("Benchmark"),
+    risk_free_series.rename("RF")
+], axis=1).dropna()
+
+# Save to CSV to audit each month
+diagnostic_csv = diagnostic_df.copy()
+diagnostic_csv["CrestCast_Excess"] = diagnostic_csv["CrestCast"] - diagnostic_csv["RF"]
+diagnostic_csv["Benchmark_Excess"] = diagnostic_csv["Benchmark"] - diagnostic_csv["RF"]
+
+# Reorder for clarity
+diagnostic_csv = diagnostic_csv[["CrestCast", "Benchmark", "RF", "CrestCast_Excess", "Benchmark_Excess"]]
+
+# Export the file
+st.download_button(
+    label="⬇️ Download Alpha Calculation Dataset",
+    data=diagnostic_csv.to_csv().encode("utf-8"),
+    file_name="alpha_inputs_diagnostic.csv",
+    mime="text/csv"
+)
+
+
 # Metrics to display
 metrics = [
     "Annualized Return", "Annualized Std Dev", 
