@@ -483,7 +483,7 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Beta": lambda p, b: safe_beta_alpha(p, b, rf_series=risk_free_series)[0],
         "Alpha": lambda p, b: safe_beta_alpha(p, b, rf_series=risk_free_series)[1],
         "Sharpe Ratio": lambda p, b: (sharpe_ratio(p, rf=risk_free_series), sharpe_ratio(b, rf=risk_free_series)),
-        "Information Ratio": lambda p, b: information_ratio(p, b, rf_series=risk_free_series),
+        "Information Ratio": lambda p, b: information_ratio(p, b, rf=risk_free_series),
         "Max Drawdown": lambda p, b: (max_drawdown(p), max_drawdown(b)),
         "Ulcer Ratio": lambda p, b: (ulcer_ratio(p, b), ulcer_ratio(b, b)),
         "Tracking Error": lambda p, b: tracking_error(p, b),
