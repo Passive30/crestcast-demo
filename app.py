@@ -322,7 +322,7 @@ def return_diff(port, bench):
     return annualized_return(port) - annualized_return(bench)
 
 # Rename series before using beta_alpha
-nnamed_crestcast = net_crestcast.rename("CrestCast")
+named_crestcast = net_crestcast.rename("CrestCast")
 named_benchmark = benchmark.rename("Benchmark")
 
 # Build aligned DataFrame used for alpha/beta calculation
