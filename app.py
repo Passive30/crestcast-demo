@@ -355,11 +355,15 @@ metrics = [
     "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture"
 ]
 
-# CrestCast metrics (labeled for beta_alpha to work)
+# Unpack beta and alpha safely first
+beta, alpha = safe_beta_alpha(named_crestcast, named_benchmark, rf_series=risk_free_series)
+
+# CrestCast metrics
 crestcast_metrics = [
     annualized_return(named_crestcast),
     annualized_std(named_crestcast),
-    safe_beta_alpha(named_crestcast, named_benchmark, rf_series=risk_free_series),
+    beta,
+    alpha,
     sharpe_ratio(named_crestcast, rf=risk_free_series),
     tracking_error(named_crestcast, named_benchmark),
     information_ratio(named_crestcast, named_benchmark, rf=risk_free_series),
@@ -369,18 +373,19 @@ crestcast_metrics = [
     down_capture(named_crestcast, named_benchmark)
 ]
 
-# Benchmark metrics
+# Benchmark metrics (matches length with None placeholders)
 benchmark_metrics = [
     annualized_return(named_benchmark),
     annualized_std(named_benchmark),
-    None, None,
+    None, None,  # beta and alpha not calculated for benchmark
     sharpe_ratio(named_benchmark, rf=risk_free_series),
-    None,  # Tracking Error placeholder
+    None,  # Tracking Error
     None,  # Information Ratio
     max_drawdown(named_benchmark),
     ulcer_ratio(named_benchmark, named_benchmark),
-    1.0, 1.0
+    1.0, 1.0  # Up and Down Capture for benchmark
 ]
+
 
 # Format function with metric context
 def fmt(x, metric=None):
