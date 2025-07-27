@@ -19,7 +19,7 @@ st.warning(
 )
 
 # === Load and Clean CSV ===
-file_path = "timeseries_6-25-2025.csv"
+file_path = "timeseries_6-25-2025_b.csv"
 returns_df = pd.read_csv(file_path)
 returns_df['Date'] = pd.to_datetime(returns_df['Date'], errors='coerce')
 returns_df = returns_df.set_index('Date')
