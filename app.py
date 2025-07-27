@@ -142,19 +142,30 @@ account_type = "Individual"
 # === Section 2: Select Base Index ===
 st.header("2. Select CrestCast Index")
 
-# Select CrestCast index to analyze
 available_indexes = [col for col in returns_df.columns if col.startswith("CrestCast")]
 selected_index = st.selectbox("Choose a CrestCast Index to Analyze", available_indexes)
 
-# Drop rows where selected CrestCast index is missing
-returns_df = returns_df.dropna(subset=[selected_index])
+# Explicitly map each CrestCast index to the correct benchmark
+benchmark_map = {
+    "CrestCast_100": "Russell_3000",
+    "CrestCast_50": "Russell_3000",
+    "CrestCast Bond": "AGG",
+    "CrestCast_Bond": "AGG",
+    "CrestCast_Bond_100": "AGG",
+    "CrestCast Dynamic Bond": "AGG"
+}
 
+preferred_index = benchmark_map.get(selected_index)
 
-# Automatically select the benchmark
-if "Bond" in selected_index:
-    preferred_index = "AGG"
-else:
-    preferred_index = "Russell_3000"
+if preferred_index is None or preferred_index not in returns_df.columns:
+    st.error(f"⚠️ Benchmark not defined or not found for: {selected_index}")
+    st.stop()
+
+# Optional debug output
+st.caption(f"✅ Using benchmark: **{preferred_index}** for selected index: **{selected_index}**")
+
+# Drop rows where either selected CrestCast index or its benchmark is missing
+returns_df = returns_df.dropna(subset=[selected_index, preferred_index])
 
 
 # === Section 3: Activate Overlay Logic ===
