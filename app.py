@@ -142,30 +142,15 @@ account_type = "Individual"
 # === Section 2: Select Base Index ===
 st.header("2. Select CrestCast Index")
 
+# Select CrestCast index to analyze
 available_indexes = [col for col in returns_df.columns if col.startswith("CrestCast")]
 selected_index = st.selectbox("Choose a CrestCast Index to Analyze", available_indexes)
 
-# Explicitly map each CrestCast index to the correct benchmark
-benchmark_map = {
-    "CrestCast_100": "Russell_3000",
-    "CrestCast_50": "Russell_3000",
-    "CrestCast Bond": "AGG",
-    "CrestCast_Bond": "AGG",
-    "CrestCast_Bond_100": "AGG",
-    "CrestCast Dynamic Bond": "AGG"
-}
-
-preferred_index = benchmark_map.get(selected_index)
-
-if preferred_index is None or preferred_index not in returns_df.columns:
-    st.error(f"⚠️ Benchmark not defined or not found for: {selected_index}")
-    st.stop()
-
-# Optional debug output
-st.caption(f"✅ Using benchmark: **{preferred_index}** for selected index: **{selected_index}**")
-
-# Drop rows where either selected CrestCast index or its benchmark is missing
-returns_df = returns_df.dropna(subset=[selected_index, preferred_index])
+# Automatically select the benchmark
+if "Bond" in selected_index:
+    preferred_index = "AGG"
+else:
+    preferred_index = "Russell_3000"
 
 
 # === Section 3: Activate Overlay Logic ===
@@ -333,32 +318,8 @@ def return_diff(port, bench):
     return annualized_return(port) - annualized_return(bench)
 
 # Rename series before using beta_alpha
-named_crestcast = net_crestcast.rename("CrestCast")
+named_crestcast = blended_crestcast.rename("CrestCast")
 named_benchmark = benchmark.rename("Benchmark")
-
-# Build aligned DataFrame used for alpha/beta calculation
-diagnostic_df = pd.concat([
-    net_crestcast.rename("CrestCast"),
-    benchmark.rename("Benchmark"),
-    risk_free_series.rename("RF")
-], axis=1).dropna()
-
-# Save to CSV to audit each month
-diagnostic_csv = diagnostic_df.copy()
-diagnostic_csv["CrestCast_Excess"] = diagnostic_csv["CrestCast"] - diagnostic_csv["RF"]
-diagnostic_csv["Benchmark_Excess"] = diagnostic_csv["Benchmark"] - diagnostic_csv["RF"]
-
-# Reorder for clarity
-diagnostic_csv = diagnostic_csv[["CrestCast", "Benchmark", "RF", "CrestCast_Excess", "Benchmark_Excess"]]
-
-# Export the file
-st.download_button(
-    label="⬇️ Download Alpha Calculation Dataset",
-    data=diagnostic_csv.to_csv().encode("utf-8"),
-    file_name="alpha_inputs_diagnostic.csv",
-    mime="text/csv"
-)
-
 
 # Metrics to display
 metrics = [
@@ -368,15 +329,11 @@ metrics = [
     "Max Drawdown", "Ulcer Ratio", "Up Capture", "Down Capture"
 ]
 
-# Compute beta and alpha directly
-beta, alpha = beta_alpha(named_crestcast, named_benchmark, rf=risk_free_series)
-
-# CrestCast metrics
+# CrestCast metrics (labeled for beta_alpha to work)
 crestcast_metrics = [
     annualized_return(named_crestcast),
     annualized_std(named_crestcast),
-    beta,
-    alpha,
+    *beta_alpha(named_crestcast, named_benchmark, rf=risk_free_series),
     sharpe_ratio(named_crestcast, rf=risk_free_series),
     tracking_error(named_crestcast, named_benchmark),
     information_ratio(named_crestcast, named_benchmark, rf=risk_free_series),
@@ -386,20 +343,18 @@ crestcast_metrics = [
     down_capture(named_crestcast, named_benchmark)
 ]
 
-# Benchmark metrics (with placeholders for beta, alpha, info)
+# Benchmark metrics
 benchmark_metrics = [
     annualized_return(named_benchmark),
     annualized_std(named_benchmark),
-    None, None,  # beta and alpha not calculated for benchmark
+    None, None,
     sharpe_ratio(named_benchmark, rf=risk_free_series),
-    None,
-    None,
+    None,  # Tracking Error placeholder
+    None,  # Information Ratio
     max_drawdown(named_benchmark),
     ulcer_ratio(named_benchmark, named_benchmark),
-    1.0,
-    1.0
+    1.0, 1.0
 ]
-
 
 # Format function with metric context
 def fmt(x, metric=None):
@@ -490,7 +445,7 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Since Inception": returns_subset.index[0]
     }
 
-    # Metrics to compute — now using direct functions only
+    # Metrics to compute
     metrics = {
         "Ann. Return": lambda p, b: (annualized_return(p), annualized_return(b)),
         "Ann. Std Dev": lambda p, b: (annualized_std(p), annualized_std(b)),
@@ -504,7 +459,6 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
         "Up Capture": lambda p, b: (up_capture(p, b), up_capture(b, b)),
         "Down Capture": lambda p, b: (down_capture(p, b), down_capture(b, b)),
     }
-
 
     from collections import defaultdict
     nested_data = defaultdict(dict)
@@ -569,7 +523,7 @@ if st.checkbox("Show Rolling 5-Year Alpha Summary and Distribution"):
         if port.isnull().any() or bench.isnull().any():
             continue
 
-        _, alpha = beta_alpha(port, bench, rf=risk_free_series.reindex(window.index).ffill())
+        _, alpha = beta_alpha(port, bench, rf=risk_free_series.loc[window.index])
         alpha_values.append(alpha)
         alpha_dates.append(window.index[-1])
 
