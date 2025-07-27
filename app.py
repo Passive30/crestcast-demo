@@ -4,6 +4,7 @@ import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import statsmodels.api as sm
 from PIL import Image
 
 # === Page Configuration ===
@@ -43,31 +44,47 @@ def annualized_std(r):
     return r.std() * np.sqrt(12)
 
 def beta_alpha(port, bench, rf=None):
+    # Align and clean
     port = port.dropna()
     bench = bench.dropna()
     df = pd.concat([port.rename("CrestCast"), bench.rename("Benchmark")], axis=1).dropna()
+
+    # Adjust for risk-free rate if provided
     if rf is not None:
         rf = rf.reindex(df.index).fillna(method='ffill')
-        df["CrestCast"] -= rf
-        df["Benchmark"] -= rf
+        df["CrestCast"] = df["CrestCast"] - rf
+        df["Benchmark"] = df["Benchmark"] - rf
+
+    # Drop any remaining NaNs
+    df = df.dropna()
     if df.shape[0] < 2:
         return np.nan, np.nan
-    cov = np.cov(df["CrestCast"], df["Benchmark"])
-    beta = cov[0, 1] / cov[1, 1]
-    alpha = annualized_return(df["CrestCast"]) - beta * annualized_return(df["Benchmark"])
+
+    # Regression to get beta and Jensen alpha
+    X = sm.add_constant(df["Benchmark"])
+    model = sm.OLS(df["CrestCast"], X).fit()
+    beta = model.params["Benchmark"]
+    alpha = model.params["const"] * 12  # Annualize monthly alpha
+
     return beta, alpha
+
 
 def sharpe_ratio(r, rf=None):
     if r.empty:
         return np.nan
+
+    # If no risk-free rate is provided, use zero
     if rf is None:
-        rf = 0.0
+        excess = r
     elif isinstance(rf, pd.Series):
         rf = rf.reindex(r.index).fillna(method='ffill')
         excess = r - rf
     else:
-        excess = r - rf / 12
-    return (excess.mean() / r.std()) * np.sqrt(12)
+        excess = r - rf  # Assuming rf is already monthly and decimal
+
+    # Use the standard deviation of excess returns
+    return (excess.mean() / excess.std()) * np.sqrt(12) if excess.std() != 0 else np.nan
+
 
 def max_drawdown(r):
     cumulative = (1 + r).cumprod()
