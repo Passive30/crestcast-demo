@@ -506,17 +506,16 @@ if st.checkbox("Show 1yr, 5yr, 10yr, Since Inception Statistics"):
 
     decimal_metrics = ["Beta", "Sharpe Ratio", "Ulcer Ratio", "Information Ratio"]
 
-def smart_format(val, metric_name):
-    if metric_name == "Information Ratio" and pd.isna(val):
-        return "–"
-    
-    if isinstance(val, (int, float)):
-        if any(dm in metric_name for dm in ["Beta", "Sharpe Ratio", "Ulcer Ratio", "Information Ratio"]):
-            return f"{val:.2f}"
-        return f"{val:.2%}" if abs(val) < 10 else f"{val:.2f}"
-    
-    return val
-
+    def smart_format(val, metric_name):
+        if metric_name == "Information Ratio" and pd.isna(val):
+            return "–"
+        
+        if isinstance(val, (int, float)):
+            if any(dm in metric_name for dm in decimal_metrics):
+                return f"{val:.2f}"
+            return f"{val:.2%}" if abs(val) < 10 else f"{val:.2f}"
+        
+        return val
 
     formatted_df = multi_index_df.copy()
     for metric in formatted_df.index:
