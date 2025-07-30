@@ -660,7 +660,7 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
 # === Final Summary Stat Row (Always Visible) ===
 # Inject custom CSS to center metric blocks and headings
 st.markdown("---")
-st.caption("##All metrics reflect CrestCast™ 100 performance vs. the Russell 3000.")
+st.markdown("Below metrics reflect CrestCast™ 100 performance vs. the Russell 3000.")
 
 # === Alpha Row ===
 st.markdown("### 🟦  Periods with Positive Alpha (CrestCast™ 100 vs. Benchmark)</div>", unsafe_allow_html=True)
