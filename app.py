@@ -660,10 +660,10 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
 # === Final Summary Stat Row (Always Visible) ===
 # Inject custom CSS to center metric blocks and headings
 st.markdown("---")
-st.caption("All metrics reflect CrestCast™ 100 performance vs. the Russell 3000.")
+st.caption("##All metrics reflect CrestCast™ 100 performance vs. the Russell 3000.")
 
 # === Alpha Row ===
-st.markdown("###  <div style='text-align: center;'>🟦   Periods with Positive Alpha (CrestCast™ 100 vs. Benchmark)</div>", unsafe_allow_html=True)
+st.markdown("### 🟦  Periods with Positive Alpha (CrestCast™ 100 vs. Benchmark)</div>", unsafe_allow_html=True)
 
 cols = st.columns(5)
 cols[1].metric(label="📈 10-Year Windows", value="100%")
@@ -671,7 +671,7 @@ cols[2].metric(label="📊 5-Year Windows", value="89%")
 cols[3].metric(label="📉 3-Year Windows", value="73%")
 
 # === Sharpe Row ===
-st.markdown("### <div style='text-align: center;'>🟩   Periods where CrestCast™ 100 Sharpe > Benchmark Sharpe</div>", unsafe_allow_html=True)
+st.markdown("### 🟩   Periods where CrestCast™ 100 Sharpe > Benchmark Sharpe</div>", unsafe_allow_html=True)
 
 
 cols = st.columns(5)
