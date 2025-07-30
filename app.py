@@ -659,29 +659,34 @@ if st.checkbox("Show Rolling 5-Year Sharpe Comparison"):
 
 # === Final Summary Stat Row (Always Visible) ===
 st.markdown("---")
+st.caption("Based on CrestCast™ 100 statistics")
 
 cols = st.columns(3)
 
 with cols[0]:
     st.metric(
-        label="📈 10-Year Windows",
-        value="100% Alpha ⬆",
-        delta="Sharpe outperformance: 99% of periods"
+        label="📈 10-Year Windows: Alpha > 0",
+        value="100%",
+        delta=0.99,  # 99% Sharpe outperformance
+        delta_color="normal"
     )
 
 with cols[1]:
     st.metric(
-        label="📊 5-Year Windows",
-        value="89% Alpha ⬆",
-        delta="Sharpe outperformance: 76% of periods"
+        label="📊 5-Year Windows: Alpha > 0",
+        value="89%",
+        delta=0.76,
+        delta_color="normal"
     )
 
 with cols[2]:
     st.metric(
-        label="📉 3-Year Windows",
-        value="73% Alpha ⬆",
-        delta="Sharpe outperformance: 60% of periods"
+        label="📉 3-Year Windows: Alpha > 0",
+        value="73%",
+        delta=0.60,
+        delta_color="normal"
     )
+
 
 st.markdown("---")
 
