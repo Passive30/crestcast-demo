@@ -663,7 +663,7 @@ st.markdown("---")
 st.caption("All metrics reflect CrestCast™ 100 performance vs. the Russell 3000.")
 
 # === Alpha Row ===
-st.markdown("### 🟦 Periods with Positive Alpha (CrestCast™ 100 vs. Benchmark)")
+st.markdown("### 🟦 <div style='text-align: center;'>Periods with Positive Alpha (CrestCast™ 100 vs. Benchmark)</div>", unsafe_allow_html=True)
 
 cols = st.columns(5)
 cols[1].metric(label="📈 10-Year Windows", value="100%")
@@ -671,7 +671,8 @@ cols[2].metric(label="📊 5-Year Windows", value="89%")
 cols[3].metric(label="📉 3-Year Windows", value="73%")
 
 # === Sharpe Row ===
-st.markdown("### 🟩 Periods where CrestCast™ 100 Sharpe > Benchmark Sharpe")
+st.markdown("### 🟩 <div style='text-align: center;'>Periods where CrestCast™ 100 Sharpe > Benchmark Sharpe</div>", unsafe_allow_html=True)
+
 
 cols = st.columns(5)
 cols[1].metric(label="📈 10-Year Windows", value="99%")
